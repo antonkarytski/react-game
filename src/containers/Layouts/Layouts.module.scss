@@ -1,0 +1,16 @@
+.GameLayout{
+  width: 100%;
+  height: 100%;
+}
+
+.NavigationLayout{
+  position: absolute;
+  width: 100%;
+  height: 50px;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 5px;
+}

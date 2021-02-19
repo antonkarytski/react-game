@@ -1,25 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import './styles/styles.scss';
+import Frame from "./containers/Frame";
+import {SETTINGS} from "./gameHelper";
+import {getHero} from "./characters";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {
+    return (
+        <div className="app">
+            <Frame
+                settings = {SETTINGS}
+                char = {getHero(0)}
+            />
+        </div>
+    );
 }
 
 export default App;
