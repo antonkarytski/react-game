@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import classes from './Layouts.module.scss'
 import Hero from '../../components/Hero/Hero';
 import Obstacle from '../../components/Obstacle/Obstacle';
-import {getRandomObstacle} from '../../characters';
+import {getRandomObstacle} from '../../gameHelper';
 
 
 const GameLayout = ({char,settings}) => {

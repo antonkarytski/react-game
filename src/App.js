@@ -1,8 +1,7 @@
 import React from 'react'
 import './styles/styles.scss';
 import Frame from "./containers/Frame";
-import {SETTINGS} from "./gameHelper";
-import {getHero} from "./characters";
+import {getHero, SETTINGS} from "./gameHelper";
 
 const App = () => {
     return (
