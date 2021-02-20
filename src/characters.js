@@ -9,8 +9,18 @@ export const OBSTACLES = [
         type: "private",
         label : "ОМОН",
         weight: 1,
-        width: 50,
+        width: 30,
         height: 50,
+        altitude: 0,
+        sprite: "./assets/skins/warrior.png"
+
+    },
+    {
+        type: "fat private",
+        label : "МАЛЕНЬКИЙ ОМОН",
+        weight: 1,
+        width: 40,
+        height: 40,
         altitude: 0,
         sprite: "./assets/skins/warrior.png"
 
@@ -18,9 +28,9 @@ export const OBSTACLES = [
     {
         type: "wagon",
         label : "АВТОЗАК",
-        weight: 0.1,
-        width: 100,
-        height: 80,
+        weight: 1,
+        width: 75,
+        height: 60,
         altitude: 0,
         sprite: false
     },

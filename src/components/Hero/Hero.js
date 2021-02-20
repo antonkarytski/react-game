@@ -4,21 +4,14 @@ import useKeyPress from "../../hooks/useKeyPress";
 import StyledHero from "./styles/StyledHero";
 
 
-const Hero = ({item, settings}) => {
+const Hero = ({item}) => {
 
     const [spriteX, setSpriteX] = useState(0);
     const [spriteY, setSpriteY] = useState(0);
     const [posX, setPosX] = useState(0)
-    const [posY, setPosY] = useState(0)
     const [jumpState, setJump] = useState(false)
-
-    //Styles for jump are settled in StyledHero
-    const styles = {
-        backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
-        backgroundPosition: `-${spriteX * 52}px -${spriteY * 55}px` ,
-        bottom : `${posY}px`,
-        left : `${posX}px`,
-    }
+    const [sitdownState, setSitdown] = useState(false)
+    const [size, setSize] = useState([50,40])
 
     const animateMoveX = (val) => {
         setSpriteY(4);
@@ -33,12 +26,6 @@ const Hero = ({item, settings}) => {
         else {setPosX(posX+val)}
     }
 
-    const moveY = (val) => {
-        if(posY+val > 250){setPosY(0)}
-        else if(posY+val < 0) {setPosY(250)}
-        else {setPosY(posY+val)}
-    }
-
     const resetAnimation = () => {
         setSpriteX(0);
         setSpriteY(0);
@@ -46,13 +33,19 @@ const Hero = ({item, settings}) => {
 
     const actions = {
         down : () => {
+            if(!jumpState && !sitdownState ){
+                setSitdown( true);
+                setSpriteX(4);
+                setSpriteY(2.3);
+                setSize([30,50])
+            }
         },
         up : () => {
-            if(jumpState === false){
+            if(!jumpState && !sitdownState ){
                 setJump( true);
                 setTimeout(() => {
                     setJump(false)
-                }, 700)
+                }, 700 * 1.5 - 200)
             }
         },
         left : (speed) => {
@@ -66,7 +59,6 @@ const Hero = ({item, settings}) => {
     //const classes = [classesCss.Hero, classesCss.Jump]
 
     useKeyPress((e) => {
-        console.log(1);
         const dir = e.key.replace("Arrow", "").toLowerCase()
         if(actions.hasOwnProperty(dir)){
             actions[dir](5);
@@ -76,10 +68,29 @@ const Hero = ({item, settings}) => {
 
     useKeyPress((e) => {
         const dir = e.key.replace("Arrow", "").toLowerCase()
+        if(dir === "down"){
+            resetAnimation()
+            setSitdown( false);
+            setSize([50,40])
+        }
+    }, "keyup") //KEYUP FOR RESET ANIMATION
+
+    useKeyPress((e) => {
+        const dir = e.key.replace("Arrow", "").toLowerCase()
         if(actions.hasOwnProperty(dir)){
             resetAnimation()
         }
-    }, "keyup")
+    }, "keyup") //KEYUP FOR RESET ANIMATION
+
+
+    const styles = {
+        backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
+        backgroundPosition: `-${spriteX * 52 + 8}px -${spriteY * 55}px` ,
+        bottom : `0px`,
+        left : `${posX}px`,
+        height: `${size[0]}px`,
+        width: `${size[1]}px`
+    }
 
 
 

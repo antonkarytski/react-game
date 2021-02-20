@@ -3,7 +3,7 @@ import styled from 'styled-components'
 export default styled.div`
 
   position: absolute;
-  animation: move 3s linear infinite;
+  animation: move 3.2s linear infinite;
   
   @keyframes move {
     0% {
@@ -11,7 +11,7 @@ export default styled.div`
     }
     
    100% {
-    right: 600px;
+    right: ${props => 600 + props.width}px;
    }
   }
 

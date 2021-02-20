@@ -24,7 +24,16 @@ const heroMap = (function (options) {
 export const getRandomObstacle = () => {
     const range = Math.random() * weights[weights.length - 1];
     for (let i = 0; i < weights.length; i++) {
-        if (weights[i] > range) return OBSTACLES[i];
+        if (weights[i] > range){
+            const obstacleToShow = Object.assign({
+                display: true,
+                lifetime: 2400
+            },OBSTACLES[i]);
+            obstacleToShow.altitude = Array.isArray(obstacleToShow.altitude) ?
+                obstacleToShow.altitude[0] + Math.random() * (obstacleToShow.altitude[1] - obstacleToShow.altitude[0]) :
+                obstacleToShow.altitude
+            return obstacleToShow;
+        }
     }
 }
 
@@ -34,6 +43,7 @@ export const getRandomObstacle = () => {
 
 export const getHero = (heroIndex = 0) => {
     const sourceHero = typeof heroIndex === "number"? CHARACTERS[heroIndex] : CHARACTERS[heroMap.indexOf(heroIndex)];
-    const preparedHero = Object.assign({sprite : require(`./assets/chars/${sourceHero.name}/sprite.png`).default},sourceHero);
-    return preparedHero;
+    return Object.assign({
+        sprite : require(`./assets/chars/${sourceHero.name}/sprite.png`).default,
+    },sourceHero);
 }

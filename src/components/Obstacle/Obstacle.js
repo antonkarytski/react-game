@@ -6,29 +6,24 @@ const Obstacle = ({item}) => {
     const {
         width,
         height,
-        altitude
+        altitude,
+        label
     } = item;
 
-    const getAltitude = (altitude) => {
-        if(Array.isArray(altitude)){
-            return altitude[0] + Math.random() * (altitude[1] - altitude[0]);
-        }
-        return altitude;
-    }
 
     const style = {
         width: `${width}px`,
         height: `${height}px`,
         backgroundColor: 'red',
-        bottom: getAltitude(altitude) || 0,
-        right: '0',
+        bottom: altitude || 0
     }
 
     return (
         <StyledObstacle
-            style={style}
+            style = {style}
+            width = {width}
         >
-            {item.label}
+            {label}
         </StyledObstacle>
     )
 }
