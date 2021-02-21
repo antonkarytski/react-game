@@ -1,5 +1,14 @@
 .Frame{
   position: relative;
   border: 1px solid black;
-  margin: auto;
+}
+
+.Border{
+  width:10%;
+}
+
+.Wrap{
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
 }

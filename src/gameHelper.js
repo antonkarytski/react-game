@@ -1,4 +1,4 @@
-import {CHARACTERS, OBSTACLES} from "./characters";
+import {CHARACTERS, LOCATION, OBSTACLES} from "./characters";
 
 export const SETTINGS = {
     frameWidth: 600,
@@ -27,8 +27,9 @@ export const getRandomObstacle = () => {
         if (weights[i] > range){
             const obstacleToShow = Object.assign({
                 display: true,
-                position: 0
+                position: 0,
             },OBSTACLES[i]);
+            obstacleToShow.sprite = OBSTACLES[i].sprite? require(`./assets/obstacles/${OBSTACLES[i].sprite}/sprite.png`).default : false
             obstacleToShow.altitude = Array.isArray(obstacleToShow.altitude) ?
                 obstacleToShow.altitude[0] + Math.random() * (obstacleToShow.altitude[1] - obstacleToShow.altitude[0]) :
                 obstacleToShow.altitude
@@ -46,4 +47,11 @@ export const getHero = (heroIndex = 0) => {
     return Object.assign({
         sprite : require(`./assets/chars/${sourceHero.name}/sprite.png`).default,
     },sourceHero);
+}
+
+
+export const getLocation = () => {
+    return Object.assign({
+        image : require(`./assets/bg/common.jpg`).default,
+    },LOCATION);
 }

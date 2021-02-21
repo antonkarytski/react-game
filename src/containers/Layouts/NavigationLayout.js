@@ -1,14 +1,20 @@
 import React from 'react'
 import classes from './Layouts.module.scss'
 import '../../styles/styles.scss'
-import Counter from "../../components/Navigation/Counter/Counter";
-import MenuButton from "../../components/Navigation/MenuButton";
+import {faBars, faTimes} from '@fortawesome/free-solid-svg-icons'
+import Button from "../../components/Navigation/Button";
 
-const NavigationLayout = () => {
+const NavigationLayout = ({gameOnPause, onPauseToggle}) => {
     return(
         <div className={classes.NavigationLayout}>
-            <MenuButton className={"menu"} />
-            <Counter className={"counter"} bestScore={false}/>
+            <Button
+                onClick = {onPauseToggle}
+                className={"menu"}
+                valueDefault = {faTimes}
+                valueToggled = {faBars}
+                faIcon = {true}
+                toggled = {gameOnPause}
+            />
         </div>
     )
 }

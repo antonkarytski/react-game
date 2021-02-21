@@ -9,23 +9,25 @@ const Obstacle = ({item}) => {
         altitude,
         label,
         position,
+        sprite,
     } = item;
 
     const style = {
         width: `${width}px`,
         height: `${height}px`,
-        backgroundColor: 'red',
         bottom: altitude || 0,
-        left: `${position}px`
+        left: `${position}px`,
+        backgroundSize: 'contain'
     }
 
-    return (
-        <StyledObstacle
-            style = {style}
-        >
-            {label}
-        </StyledObstacle>
+    if(sprite) {style.backgroundImage = `url(${process.env.PUBLIC_URL + sprite})`;}
+    else {style.backgroundColor = 'red'}
 
+
+
+
+    return (
+        <StyledObstacle style = {style} />
     )
 }
 

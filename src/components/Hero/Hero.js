@@ -3,7 +3,7 @@ import useKeyPress from "../../hooks/useKeyPress";
 import StyledHero from "./styles/StyledHero";
 
 
-const Hero = ({item, getMyPosition}) => {
+const Hero = ({item, getMyPosition, gameOnPause}) => {
 
     const [spriteX, setSpriteX] = useState(0);
     const [spriteY, setSpriteY] = useState(0);
@@ -37,12 +37,10 @@ const Hero = ({item, getMyPosition}) => {
         }
     }
 
-
     const resetAnimation = () => {
         setSpriteX(0);
         setSpriteY(0);
     }
-
 
     const actions = {
         down: () => {
@@ -82,40 +80,61 @@ const Hero = ({item, getMyPosition}) => {
     //const classes = [classesCss.Hero, classesCss.Jump]
 
     useKeyPress((e) => {
-        const dir = e.key.replace("Arrow", "").toLowerCase()
-        if (actions.hasOwnProperty(dir)) {
-            actions[dir](5);
-            e.preventDefault();
+        if(!gameOnPause){
+            const dir = e.key.replace("Arrow", "").toLowerCase()
+            if (actions.hasOwnProperty(dir)) {
+                actions[dir](5);
+                e.preventDefault();
+            }
         }
     }) //keydown by default
 
     useKeyPress((e) => {
-        const dir = e.key.replace("Arrow", "").toLowerCase()
-        if (dir === "down") {
-            resetAnimation()
-            setOnSitState(false);
-            setSize([50, 40])
-        } else if(dir === "left" || dir === "right"){
-            if (!onJumpState && !onSitState){
+        if(!gameOnPause) {
+            const dir = e.key.replace("Arrow", "").toLowerCase()
+            if (dir === "down") {
                 resetAnimation()
+                setOnSitState(false);
+                setSize([50, 40])
+            } else if (dir === "left" || dir === "right") {
+                if (!onJumpState && !onSitState) {
+                    resetAnimation()
+                }
+                setOnMoveState(false)
+            } else if (dir === "up") {
             }
-            setOnMoveState(false)
-        } else if(dir === "up"){
         }
     }, "keyup") //KEYUP FOR RESET ANIMATION
 
     useEffect(() => {
-        if(onMoveState || onJumpState || onSitState){
-            const left = selfElement.current.getBoundingClientRect().left
-            const top = selfElement.current.getBoundingClientRect().top
-            getMyPosition({
-                left,
-                top,
-                bottom: top + size[0],
-                right: left + size[1]
-            })
+        if(!gameOnPause){
+            if(onMoveState || onJumpState || onSitState){
+                const left = selfElement.current.getBoundingClientRect().left
+                const top = selfElement.current.getBoundingClientRect().top
+                getMyPosition({
+                    left,
+                    top,
+                    bottom: top + size[0],
+                    right: left + size[1]
+                })
+            }
+        } else if(onJumpState){
+            selfElement.current.style.animationPlayState = 'paused';
         }
-    })
+    }, null)
+
+
+    //INIT STATE, START ONLY ONE TIME
+    useEffect(() => {
+        const left = selfElement.current.getBoundingClientRect().left
+        const top = selfElement.current.getBoundingClientRect().top
+        getMyPosition({
+            left,
+            top,
+            bottom: top + size[0],
+            right: left + size[1]
+        })
+    }, [])
 
 
     const styles = {

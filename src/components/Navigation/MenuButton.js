@@ -1,15 +1,27 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBars} from '@fortawesome/free-solid-svg-icons'
-import classesCss from './MenuButton.module.scss'
+import {faBars, faTimes} from '@fortawesome/free-solid-svg-icons'
+import classesCss from './Button.module.scss'
 
-const MenuButton = ({className}) => {
+const MenuButton = ({className, onPauseToggle}) => {
+
+    const [menuOpened, setMenuOpened] = useState(false)
 
     const classes = [classesCss.Menu]
     classes.push(className)
 
+    const onClickHandler = () => {
+        onPauseToggle();
+        setMenuOpened(!menuOpened)
+    }
+
+
     return(
-        <div className = {classes.join(" ")}><FontAwesomeIcon icon={faBars} /></div>
+        <div
+            onClick={() => onClickHandler()}
+            className = {classes.join(" ")}>
+            <FontAwesomeIcon icon={menuOpened? faTimes : faBars} />
+        </div>
     )
 }
 
