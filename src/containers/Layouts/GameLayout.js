@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import classes from './Layouts.module.scss'
 import Hero from '../../components/Hero/Hero';
 import Obstacle from '../../components/Obstacle/Obstacle';
@@ -7,29 +7,39 @@ import {getRandomObstacle} from '../../gameHelper';
 
 const GameLayout = ({char, settings}) => {
 
-    const minTime = 900;
-    const maxTime = 2800;
-    const stackSize = 10;
+    const minTime = 700;
+    const maxTime = 2500;
+    const stackSize = 5;
 
     const [obstacles, setObstacle] = useState(Array(stackSize))
+    const [heroPosition, saveHeroPosition] = useState()
     const [timeToNextGen, setTimeToNextGen] = useState(getTimeToNextGen(minTime, maxTime))
     const [nextObstacle, setNextObstacle] = useState(0)
     const [gameTime, setGameTime] = useState(0)
+    const selfRef = useRef(null)
 
 
     function getTimeToNextGen(minTime, maxTime) {
         return minTime + Math.random() * (maxTime - minTime)
     }
 
+    function getHeroPosition(position) {
+        saveHeroPosition(position)
+    }
+
+    //OBSTACLES GENERATION
+
     useEffect(() => {
         const generatorTimer = setInterval(() => {
             if (timeToNextGen <= 0) {
                 setTimeToNextGen(getTimeToNextGen(minTime, maxTime))
                 const obstaclesToAdd = [...obstacles];
-                obstaclesToAdd[nextObstacle] = (getRandomObstacle());
+                const newObstacle = getRandomObstacle()
+                newObstacle.position = 600 // set start position
+                obstaclesToAdd[nextObstacle] = (newObstacle);
                 setObstacle(obstaclesToAdd);
 
-                setNextObstacle(nextObstacle < stackSize -1 ? nextObstacle + 1 : 0)
+                setNextObstacle(nextObstacle < stackSize - 1 ? nextObstacle + 1 : 0)
             } else {
                 setTimeToNextGen(timeToNextGen - 10)
             }
@@ -37,39 +47,57 @@ const GameLayout = ({char, settings}) => {
         return (() => clearInterval(generatorTimer));
     }, [timeToNextGen])
 
+
+    //OBSTACLES LIFECYCLE
+
     useEffect(() => {
         const moveGenerator = setInterval(() => {
             const obstaclesToMove = obstacles.map((obstacle) => {
-                if(obstacle?.display){
-                    if(obstacle.lifetime <= 0){
+                if (obstacle?.display) {
+
+                    if (obstacle.position <= -obstacle.width) {
                         obstacle.display = false
                     } else {
-                        obstacle.lifetime = obstacle.lifetime - 10
+                        // console.log(obstacle.position);
+                        // console.log(heroPosition)
+
+                        const windowPositionLeft = selfRef.current.getBoundingClientRect().left
+                        const windowPositionBottom = selfRef.current.getBoundingClientRect().bottom
+                        if (heroPosition?.bottom > windowPositionBottom - obstacle.height - obstacle.altitude
+                            && heroPosition?.top < windowPositionBottom - obstacle.altitude
+                            && ((heroPosition?.right - windowPositionLeft > obstacle.position
+                                && heroPosition?.right - windowPositionLeft < obstacle.position + obstacle.width)
+                                || (heroPosition?.left - windowPositionLeft > obstacle.position
+                                    && heroPosition?.left - windowPositionLeft < obstacle.position + obstacle.width))
+                        ) {
+                        }
+                        obstacle.position = obstacle.position - 8
                     }
                 }
                 return obstacle
             })
             setObstacle(obstaclesToMove)
-            setGameTime(gameTime + 10)
-            console.log()
-        }, 10)
-        return(() => clearInterval(moveGenerator))
-    },[obstacles])
-
+            setGameTime(gameTime + 20)
+        }, 40)
+        return (() => clearInterval(moveGenerator))
+    }, [obstacles, gameTime])
 
     return (
-        <div className={classes.GameLayout}>
+        <div
+            ref={selfRef}
+            className={classes.GameLayout}>
             <div>
                 {gameTime}
             </div>
             <Hero
+                getMyPosition={getHeroPosition}
                 item={char}
                 settings={settings}
             />
 
             {
                 obstacles.map((obstacle, index) => {
-                    if(obstacle?.display){
+                    if (obstacle?.display) {
                         return (
                             <Obstacle
                                 key={index}
@@ -83,8 +111,6 @@ const GameLayout = ({char, settings}) => {
             }
         </div>
     )
-
-
 }
 
 export default GameLayout;

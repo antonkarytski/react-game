@@ -7,24 +7,25 @@ const Obstacle = ({item}) => {
         width,
         height,
         altitude,
-        label
+        label,
+        position,
     } = item;
-
 
     const style = {
         width: `${width}px`,
         height: `${height}px`,
         backgroundColor: 'red',
-        bottom: altitude || 0
+        bottom: altitude || 0,
+        left: `${position}px`
     }
 
     return (
         <StyledObstacle
             style = {style}
-            width = {width}
         >
             {label}
         </StyledObstacle>
+
     )
 }
 

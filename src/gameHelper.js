@@ -27,7 +27,7 @@ export const getRandomObstacle = () => {
         if (weights[i] > range){
             const obstacleToShow = Object.assign({
                 display: true,
-                lifetime: 2400
+                position: 0
             },OBSTACLES[i]);
             obstacleToShow.altitude = Array.isArray(obstacleToShow.altitude) ?
                 obstacleToShow.altitude[0] + Math.random() * (obstacleToShow.altitude[1] - obstacleToShow.altitude[0]) :

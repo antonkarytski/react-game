@@ -1,66 +1,89 @@
-import React, {useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import useKeyPress from "../../hooks/useKeyPress";
-//import classesCss from "./Hero.module.scss"
 import StyledHero from "./styles/StyledHero";
 
 
-const Hero = ({item}) => {
+const Hero = ({item, getMyPosition}) => {
 
     const [spriteX, setSpriteX] = useState(0);
     const [spriteY, setSpriteY] = useState(0);
     const [posX, setPosX] = useState(0)
-    const [jumpState, setJump] = useState(false)
-    const [sitdownState, setSitdown] = useState(false)
-    const [size, setSize] = useState([50,40])
+    const [onJumpState, setOnJumpState] = useState(false)
+    const [onSitState, setOnSitState] = useState(false)
+    const [onMoveState, setOnMoveState] = useState(false)
+    const [size, setSize] = useState([50, 40])
+    const selfElement = useRef(null);
+
 
     const animateMoveX = (val) => {
         setSpriteY(4);
-        if(spriteX+val > 11){setSpriteX(0)}
-        else if(spriteX+val < 0) {setSpriteX(11)}
-        else {setSpriteX(spriteX+val)}
+        if (spriteX + val > 11) {
+            setSpriteX(0)
+        } else if (spriteX + val < 0) {
+            setSpriteX(11)
+        } else {
+            setSpriteX(spriteX + val)
+        }
     }
 
+
     const moveX = (val) => {
-        if(posX+val > 550){setPosX(0)}
-        else if(posX+val < 0) {setPosX(550)}
-        else {setPosX(posX+val)}
+        if (posX + val > 550) {
+            setPosX(0)
+        } else if (posX + val < 0) {
+            setPosX(550)
+        } else {
+            setPosX(posX + val)
+        }
     }
+
 
     const resetAnimation = () => {
         setSpriteX(0);
         setSpriteY(0);
     }
 
+
     const actions = {
-        down : () => {
-            if(!jumpState && !sitdownState ){
-                setSitdown( true);
+        down: () => {
+            if (!onJumpState && !onJumpState) {
+                setOnSitState(true);
                 setSpriteX(4);
                 setSpriteY(2.3);
-                setSize([30,50])
+                setSize([30, 50])
             }
         },
-        up : () => {
-            if(!jumpState && !sitdownState ){
-                setJump( true);
+        up: () => {
+            if (!onJumpState && !onSitState) {
+                setOnJumpState(true);
+                resetAnimation()
                 setTimeout(() => {
-                    setJump(false)
+                    setOnJumpState(false)
                 }, 700 * 1.5 - 200)
             }
         },
-        left : (speed) => {
-            animateMoveX(-1);
-            moveX(-speed)},
+        left: (speed) => {
+            if (!onJumpState && !onSitState) {
+                setOnMoveState(true)
+                animateMoveX(-1);
+                moveX(-speed)
+
+            }
+        },
         right: (speed) => {
-            animateMoveX(1);
-            moveX(speed)},
+            if (!onJumpState && !onSitState) {
+                setOnMoveState(true)
+                animateMoveX(1);
+                moveX(speed);
+            }
+        },
     }
 
     //const classes = [classesCss.Hero, classesCss.Jump]
 
     useKeyPress((e) => {
         const dir = e.key.replace("Arrow", "").toLowerCase()
-        if(actions.hasOwnProperty(dir)){
+        if (actions.hasOwnProperty(dir)) {
             actions[dir](5);
             e.preventDefault();
         }
@@ -68,37 +91,49 @@ const Hero = ({item}) => {
 
     useKeyPress((e) => {
         const dir = e.key.replace("Arrow", "").toLowerCase()
-        if(dir === "down"){
+        if (dir === "down") {
             resetAnimation()
-            setSitdown( false);
-            setSize([50,40])
+            setOnSitState(false);
+            setSize([50, 40])
+        } else if(dir === "left" || dir === "right"){
+            if (!onJumpState && !onSitState){
+                resetAnimation()
+            }
+            setOnMoveState(false)
+        } else if(dir === "up"){
         }
     }, "keyup") //KEYUP FOR RESET ANIMATION
 
-    useKeyPress((e) => {
-        const dir = e.key.replace("Arrow", "").toLowerCase()
-        if(actions.hasOwnProperty(dir)){
-            resetAnimation()
+    useEffect(() => {
+        if(onMoveState || onJumpState || onSitState){
+            const left = selfElement.current.getBoundingClientRect().left
+            const top = selfElement.current.getBoundingClientRect().top
+            getMyPosition({
+                left,
+                top,
+                bottom: top + size[0],
+                right: left + size[1]
+            })
         }
-    }, "keyup") //KEYUP FOR RESET ANIMATION
+    })
 
 
     const styles = {
         backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
-        backgroundPosition: `-${spriteX * 52 + 8}px -${spriteY * 55}px` ,
-        bottom : `0px`,
-        left : `${posX}px`,
+        backgroundPosition: `-${spriteX * 52 + 8}px -${spriteY * 55}px`,
+        bottom: `0px`,
+        left: `${posX}px`,
         height: `${size[0]}px`,
         width: `${size[1]}px`
     }
 
 
-
     return (
         <StyledHero
+            ref={selfElement}
             id={'hero'}
             style={styles}
-            jump = {jumpState}
+            jump={onJumpState}
         />
     )
 }
