@@ -5,26 +5,77 @@ import StyledHero from "./styles/StyledHero";
 
 const Hero = ({item, setMyPosition, gameOnPause}) => {
 
-    const [spriteX, setSpriteX] = useState(0);
-    const [spriteY, setSpriteY] = useState(0);
+    const [spritePos, setSpritePos] = useState({x : 0, y : 0})
     const [posX, setPosX] = useState(0)
-    const [onJumpState, setOnJumpState] = useState(false)
-    const [onSitState, setOnSitState] = useState(false)
-    const [onMoveState, setOnMoveState] = useState(false)
     const [moveState, setMoveState] = useState('stand') //stand, run, jump, sit
-    const [size, setSize] = useState([50, 40])
+    const [size, setSize] = useState(item.sizes.default)
     const selfElement = useRef(null);
 
+    const keyActionsMap = {
+        keyup: {
+            down: () => {
+                if(moveState === 'sit'){
+                    resetAnimation()
+                    setMoveState('stand');
+                    setSize(item.sizes.default)
+                }
+            },
+            left: () => {
+                if (moveState === 'run') {
+                    resetAnimation()
+                    setMoveState('stand');
+                }
+            },
+            right: () => {
+                if (moveState === 'run') {
+                    resetAnimation()
+                    setMoveState('stand');
+                }
+            },
+        },
+        keydown: {
+            down: () => {
+                if (moveState !== 'jump') {
+                    setMoveState('sit');
+                    setSpritePos({x: 4, y: 2.3})
+                    setSize(item.sizes.sit)
+                }
+            },
+            up: () => {
+                if (moveState !== 'jump' && moveState !== 'sit') {
+                    setMoveState('jump');
+                    resetAnimation()
+                    setTimeout(() => {
+                        setMoveState('stand');
+                    }, 700 * 1.5 - 200)
+                }
+            },
+            left: (speed) => {
+                if (moveState !== 'jump' && moveState !== 'sit') {
+                    setMoveState('run');
+                    animateMoveX(-1);
+                    moveX(-speed)
+
+                }
+            },
+            right: (speed) => {
+                if (moveState !== 'jump' && moveState !== 'sit') {
+                    setMoveState('run');
+                    animateMoveX(1);
+                    moveX(speed);
+                }
+            },
+        }
+    }
 
     const animateMoveX = (val) => {
-        setSpriteY(4);
-        if (spriteX + val > 11) {
-            setSpriteX(0)
-        } else if (spriteX + val < 0) {
-            setSpriteX(11)
-        } else {
-            setSpriteX(spriteX + val)
+        let spriteX = spritePos.x + val
+        if (spriteX > 11) {
+            spriteX = 0
+        } else if (spriteX < 0) {
+            spriteX = 11
         }
+        setSpritePos({y : 4, x : spriteX});
     }
 
     const moveX = (val) => {
@@ -38,8 +89,7 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
     }
 
     const resetAnimation = () => {
-        setSpriteX(0);
-        setSpriteY(0);
+        setSpritePos({x:0,y:0})
     }
 
     const getMyOwnPosition = (self) => {
@@ -48,94 +98,37 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
         return {
             left,
             top,
-            right: left + size[1],
-            bottom: top + size[0]
+            right: left + size.w,
+            bottom: top + size.h
         }
     }
-
-    const keyActionsMap = {
-        keyup: {
-            down: () => {
-                resetAnimation()
-                setOnSitState(false);
-                setSize([50, 40])
-            },
-            left: () => {
-                if (!onJumpState && !onSitState) {
-                    resetAnimation()
-                }
-                setOnMoveState(false)
-            },
-            right: () => {
-                if (!onJumpState && !onSitState) {
-                    resetAnimation()
-                }
-                setOnMoveState(false)
-            },
-        },
-        keydown: {
-            down: () => {
-                if (!onJumpState && !onJumpState) {
-                    setOnSitState(true);
-                    setSpriteX(4);
-                    setSpriteY(2.3);
-                    setSize([30, 50])
-                }
-            },
-            up: () => {
-                if (!onJumpState && !onSitState) {
-                    setOnJumpState(true);
-                    resetAnimation()
-                    setTimeout(() => {
-                        setOnJumpState(false)
-                    }, 700 * 1.5 - 200)
-                }
-            },
-            left: (speed) => {
-                if (!onJumpState && !onSitState) {
-                    setOnMoveState(true)
-                    animateMoveX(-1);
-                    moveX(-speed)
-
-                }
-            },
-            right: (speed) => {
-                if (!onJumpState && !onSitState) {
-                    setOnMoveState(true)
-                    animateMoveX(1);
-                    moveX(speed);
-                }
-            },
-        }
-    }
-
 
     useArrowPress(keyActionsMap.keydown, "keydown", !gameOnPause)
     useArrowPress(keyActionsMap.keyup, "keyup", !gameOnPause)
 
     useEffect(() => {
         if (!gameOnPause) {
-            if (onMoveState || onJumpState || onSitState) {
+            if (moveState !== 'stand') {
                 setMyPosition(getMyOwnPosition(selfElement))
             }
-        } else if (onJumpState) {
+        } else if (moveState === 'jump') {
             //selfElement.current.style.animationPlayState = 'paused';
         }
     })
 
     //Init state for setting first position of hero
     useEffect(() => {
-        setMyPosition(setMyPosition(getMyOwnPosition(selfElement)))
+        setMyPosition(getMyOwnPosition(selfElement))
     }, [])
 
 
     const styles = {
         backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
-        backgroundPosition: `-${spriteX * 52 + 8}px -${spriteY * 55}px`,
+        backgroundPosition: `-${spritePos.x * 52 + 8}px -${spritePos.y * 55}px`,
         bottom: `0px`,
         left: `${posX}px`,
-        height: `${size[0]}px`,
-        width: `${size[1]}px`
+        height: `${size.h}px`,
+        width: `${size.w}px`
     }
 
     return (
@@ -143,7 +136,7 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
             ref={selfElement}
             id={'hero'}
             style={styles}
-            jump={onJumpState}
+            jump={moveState === 'jump'}
         />
     )
 }

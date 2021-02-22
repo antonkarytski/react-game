@@ -27,7 +27,7 @@ export const getRandomObstacle = () => {
         if (weights[i] > range){
             const obstacleToShow = Object.assign({
                 display: true,
-                position: 0,
+                position: 0
             },OBSTACLES[i]);
             obstacleToShow.sprite = OBSTACLES[i].sprite? require(`./assets/obstacles/${OBSTACLES[i].sprite}/sprite.png`).default : false
             obstacleToShow.altitude = Array.isArray(obstacleToShow.altitude) ?
@@ -46,6 +46,16 @@ export const getHero = (heroIndex = 0) => {
     const sourceHero = typeof heroIndex === "number"? CHARACTERS[heroIndex] : CHARACTERS[heroMap.indexOf(heroIndex)];
     return Object.assign({
         sprite : require(`./assets/chars/${sourceHero.name}/sprite.png`).default,
+        sizes : {
+            default : {
+                w : 40,
+                h : 50
+            },
+            sit : {
+                w : 50,
+                h : 30
+            }
+        }
     },sourceHero);
 }
 

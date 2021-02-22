@@ -6,9 +6,6 @@ import Button from "../../components/Navigation/Button";
 
 const NavigationLayout = ({gameOnPause, onPauseToggle, loseGame}) => {
 
-    console.log("onPause", gameOnPause)
-
-    console.log(loseGame)
     return(
         <div className={classes.NavigationLayout}>
             <Button
