@@ -17,7 +17,8 @@ const Obstacle = ({item}) => {
         height: `${height}px`,
         bottom: altitude || 0,
         left: `${position}px`,
-        backgroundSize: 'contain'
+        backgroundSize: 'contain',
+        border: "1px solid black"
     }
 
     if(sprite) {style.backgroundImage = `url(${process.env.PUBLIC_URL + sprite})`;}

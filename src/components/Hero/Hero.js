@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react'
-import useKeyPress from "../../hooks/useKeyPress";
+import useArrowPress from "../../hooks/useArrowPress";
 import StyledHero from "./styles/StyledHero";
 
 
-const Hero = ({item, getMyPosition, gameOnPause}) => {
+const Hero = ({item, setMyPosition, gameOnPause}) => {
 
     const [spriteX, setSpriteX] = useState(0);
     const [spriteY, setSpriteY] = useState(0);
@@ -11,6 +11,7 @@ const Hero = ({item, getMyPosition, gameOnPause}) => {
     const [onJumpState, setOnJumpState] = useState(false)
     const [onSitState, setOnSitState] = useState(false)
     const [onMoveState, setOnMoveState] = useState(false)
+    const [moveState, setMoveState] = useState('stand') //stand, run, jump, sit
     const [size, setSize] = useState([50, 40])
     const selfElement = useRef(null);
 
@@ -25,7 +26,6 @@ const Hero = ({item, getMyPosition, gameOnPause}) => {
             setSpriteX(spriteX + val)
         }
     }
-
 
     const moveX = (val) => {
         if (posX + val > 550) {
@@ -42,98 +42,90 @@ const Hero = ({item, getMyPosition, gameOnPause}) => {
         setSpriteY(0);
     }
 
-    const actions = {
-        down: () => {
-            if (!onJumpState && !onJumpState) {
-                setOnSitState(true);
-                setSpriteX(4);
-                setSpriteY(2.3);
-                setSize([30, 50])
-            }
-        },
-        up: () => {
-            if (!onJumpState && !onSitState) {
-                setOnJumpState(true);
-                resetAnimation()
-                setTimeout(() => {
-                    setOnJumpState(false)
-                }, 700 * 1.5 - 200)
-            }
-        },
-        left: (speed) => {
-            if (!onJumpState && !onSitState) {
-                setOnMoveState(true)
-                animateMoveX(-1);
-                moveX(-speed)
-
-            }
-        },
-        right: (speed) => {
-            if (!onJumpState && !onSitState) {
-                setOnMoveState(true)
-                animateMoveX(1);
-                moveX(speed);
-            }
-        },
+    const getMyOwnPosition = (self) => {
+        const left = selfElement.current.getBoundingClientRect().left
+        const top = selfElement.current.getBoundingClientRect().top
+        return {
+            left,
+            top,
+            right: left + size[1],
+            bottom: top + size[0]
+        }
     }
 
-    //const classes = [classesCss.Hero, classesCss.Jump]
-
-    useKeyPress((e) => {
-        if(!gameOnPause){
-            const dir = e.key.replace("Arrow", "").toLowerCase()
-            if (actions.hasOwnProperty(dir)) {
-                actions[dir](5);
-                e.preventDefault();
-            }
-        }
-    }) //keydown by default
-
-    useKeyPress((e) => {
-        if(!gameOnPause) {
-            const dir = e.key.replace("Arrow", "").toLowerCase()
-            if (dir === "down") {
+    const keyActionsMap = {
+        keyup: {
+            down: () => {
                 resetAnimation()
                 setOnSitState(false);
                 setSize([50, 40])
-            } else if (dir === "left" || dir === "right") {
+            },
+            left: () => {
                 if (!onJumpState && !onSitState) {
                     resetAnimation()
                 }
                 setOnMoveState(false)
-            } else if (dir === "up") {
-            }
+            },
+            right: () => {
+                if (!onJumpState && !onSitState) {
+                    resetAnimation()
+                }
+                setOnMoveState(false)
+            },
+        },
+        keydown: {
+            down: () => {
+                if (!onJumpState && !onJumpState) {
+                    setOnSitState(true);
+                    setSpriteX(4);
+                    setSpriteY(2.3);
+                    setSize([30, 50])
+                }
+            },
+            up: () => {
+                if (!onJumpState && !onSitState) {
+                    setOnJumpState(true);
+                    resetAnimation()
+                    setTimeout(() => {
+                        setOnJumpState(false)
+                    }, 700 * 1.5 - 200)
+                }
+            },
+            left: (speed) => {
+                if (!onJumpState && !onSitState) {
+                    setOnMoveState(true)
+                    animateMoveX(-1);
+                    moveX(-speed)
+
+                }
+            },
+            right: (speed) => {
+                if (!onJumpState && !onSitState) {
+                    setOnMoveState(true)
+                    animateMoveX(1);
+                    moveX(speed);
+                }
+            },
         }
-    }, "keyup") //KEYUP FOR RESET ANIMATION
+    }
+
+
+    useArrowPress(keyActionsMap.keydown, "keydown", !gameOnPause)
+    useArrowPress(keyActionsMap.keyup, "keyup", !gameOnPause)
 
     useEffect(() => {
-        if(!gameOnPause){
-            if(onMoveState || onJumpState || onSitState){
-                const left = selfElement.current.getBoundingClientRect().left
-                const top = selfElement.current.getBoundingClientRect().top
-                getMyPosition({
-                    left,
-                    top,
-                    bottom: top + size[0],
-                    right: left + size[1]
-                })
+        if (!gameOnPause) {
+            if (onMoveState || onJumpState || onSitState) {
+                setMyPosition(getMyOwnPosition(selfElement))
             }
-        } else if(onJumpState){
-            selfElement.current.style.animationPlayState = 'paused';
+        } else if (onJumpState) {
+            //selfElement.current.style.animationPlayState = 'paused';
         }
-    }, null)
+    })
 
-
-    //INIT STATE, START ONLY ONE TIME
+    //Init state for setting first position of hero
     useEffect(() => {
-        const left = selfElement.current.getBoundingClientRect().left
-        const top = selfElement.current.getBoundingClientRect().top
-        getMyPosition({
-            left,
-            top,
-            bottom: top + size[0],
-            right: left + size[1]
-        })
+        setMyPosition(setMyPosition(getMyOwnPosition(selfElement)))
     }, [])
 
 
@@ -145,7 +137,6 @@ const Hero = ({item, getMyPosition, gameOnPause}) => {
         height: `${size[0]}px`,
         width: `${size[1]}px`
     }
-
 
     return (
         <StyledHero

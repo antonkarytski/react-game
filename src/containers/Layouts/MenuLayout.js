@@ -1,5 +1,7 @@
 import React from 'react'
 import classesCss from './Layouts.module.scss'
+import Button from "../../components/Navigation/Button";
+import {faUndoAlt} from '@fortawesome/free-solid-svg-icons'
 
 function MenuLayout({mode, onResetGame}) {
 
@@ -10,7 +12,15 @@ function MenuLayout({mode, onResetGame}) {
                 <h2>ТЫ ПРОИГРАЛ</h2>
                 <div onClick={() => onResetGame()}>Начать сначала</div>
             </div>
+
     } else if(mode === "pause"){
+        innerContent =
+            <Button
+                onClick = {() => onResetGame()}
+                className={null}
+                valueDefault = {faUndoAlt}
+                faIcon = {true}
+            />
     }
 
     return (

@@ -22,6 +22,7 @@ function Button(props) {
         faIcon = false
     } = props
 
+
     const [buttonState, changeButtonState] = useState(false)
 
     const classes = [classesCss.Button]
@@ -36,9 +37,7 @@ function Button(props) {
     }
 
     useEffect(() => {
-        if(toggled){
-            changeButtonState(true)
-        }
+        changeButtonState(toggled)
     }, [toggled])
 
     const buttonClickHandler = () => {
@@ -49,6 +48,8 @@ function Button(props) {
             }
         }
     }
+
+    console.log()
 
     return (
         <div

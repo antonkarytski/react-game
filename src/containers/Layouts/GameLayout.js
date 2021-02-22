@@ -100,11 +100,10 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
                 className={"counter"}/>
             <Hero
                 gameOnPause = {gameOnPause}
-                getMyPosition={getHeroPosition}
+                setMyPosition={getHeroPosition}
                 item={char}
                 settings={settings}
             />
-
             {
                 obstacles.map((obstacle, index) => {
                     if (obstacle?.display) {

@@ -49,9 +49,9 @@ const Frame = ({settings, char, location}) => {
         setGameOnPause(false)
     }
 
-
     return (
         <div className={classesCss.Wrap}>
+            <div className={classesCss.Border} />
             <div className={classesCss.Frame} style={style}>
                 <GameLayout
                     key={gameSet}
@@ -65,6 +65,7 @@ const Frame = ({settings, char, location}) => {
                 <NavigationLayout
                     gameOnPause={gameOnPause}
                     onPauseToggle={onPauseToggle}
+                    loseGame = {loseFlag}
                 />
                 {gameOnPause ?
                     <MenuLayout
@@ -74,6 +75,7 @@ const Frame = ({settings, char, location}) => {
                     : null}
 
             </div>
+            <div className={classesCss.Border} />
         </div>
     )
 }
