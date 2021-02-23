@@ -10,25 +10,24 @@ const Obstacle = ({item, index, className, gameOnPause}) => {
         sprite,
     } = item;
 
-    const style = {
+    const styles = {
         width: `${width}px`,
         height: `${height}px`,
         bottom: altitude || 0,
-        backgroundSize: 'contain',
-        border: "1px solid black"
+        backgroundSize: 'contain'
     }
 
-    if(sprite) {style.backgroundImage = `url(${process.env.PUBLIC_URL + sprite})`;}
-    else {style.backgroundColor = 'red'}
+    if(sprite) {styles.backgroundImage = `url(${process.env.PUBLIC_URL + sprite})`;}
+    else {styles.backgroundColor = 'red'}
     if(gameOnPause) {
-        style.animationPlayState = 'paused';
+        styles.animationPlayState = 'paused';
     }
 
     return (
         <StyledObstacle
             data-index = {index}
             className = {className}
-            style = {style}
+            style = {styles}
         />
     )
 }

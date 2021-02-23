@@ -1,4 +1,8 @@
-import {CHARACTERS, LOCATION, OBSTACLES} from "./characters";
+import {LOCATIONS} from "./characters";
+
+const OBSTACLES = LOCATIONS[0].obstacles
+const CHARACTERS = LOCATIONS[0].heroes
+const ENVIRONMENT = LOCATIONS[0].environment
 
 export const SETTINGS = {
     frameWidth: 600,
@@ -29,7 +33,7 @@ export const getRandomObstacle = () => {
                 display: true,
                 position: 0
             },OBSTACLES[i]);
-            obstacleToShow.sprite = OBSTACLES[i].sprite? require(`./assets/obstacles/${OBSTACLES[i].sprite}/sprite.png`).default : false
+            obstacleToShow.sprite = OBSTACLES[i].sprite? require(`./assets/${LOCATIONS[0].name}/obstacles/${OBSTACLES[i].sprite}/sprite.png`).default : false
             obstacleToShow.altitude = Array.isArray(obstacleToShow.altitude) ?
                 obstacleToShow.altitude[0] + Math.random() * (obstacleToShow.altitude[1] - obstacleToShow.altitude[0]) :
                 obstacleToShow.altitude
@@ -44,8 +48,8 @@ export const getRandomObstacle = () => {
 
 export const getHero = (heroIndex = 0) => {
     const sourceHero = typeof heroIndex === "number"? CHARACTERS[heroIndex] : CHARACTERS[heroMap.indexOf(heroIndex)];
-    return Object.assign({
-        sprite : require(`./assets/chars/${sourceHero.name}/sprite.png`).default,
+    const heroForReturn = Object.assign({
+        sprite : require(`./assets/${LOCATIONS[0].name}/chars/${sourceHero.name}/sprite.png`).default,
         sizes : {
             default : {
                 w : 40,
@@ -55,13 +59,20 @@ export const getHero = (heroIndex = 0) => {
                 w : 50,
                 h : 30
             }
-        }
+        },
+        soundBorn : false
     },sourceHero);
+    if(heroForReturn.soundBorn) heroForReturn.soundBorn = require(`./assets/${LOCATIONS[0].name}/chars/${heroForReturn.name}/born.mp3`).default;
+    return heroForReturn
 }
 
 
 export const getLocation = () => {
-    return Object.assign({
-        image : require(`./assets/bg/common.jpg`).default,
-    },LOCATION);
+    const location = Object.assign({
+        image : require(`./assets/${LOCATIONS[0].name}/bg-common.jpg`).default,
+        bottom: 0,
+        bgMusic: false,
+    },ENVIRONMENT);
+    if(location.bgMusic) location.bgMusic = require(`./assets/${LOCATIONS[0].name}/sounds/bgmusic.mp3`).default;
+    return location ;
 }

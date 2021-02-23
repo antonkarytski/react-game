@@ -1,8 +1,15 @@
-import React, {useState} from 'react'
-import classesCss from './Frame.module.scss'
+import React, {useEffect, useRef, useState} from 'react'
+import Audio from "../components/Helpres/Audio";
 import GameLayout from "./Layouts/GameLayout";
 import NavigationLayout from "./Layouts/NavigationLayout";
 import MenuLayout from "./Layouts/MenuLayout";
+
+import classesCss from './Frame.module.scss'
+
+import {getHero, getLocation} from "../gameHelper";
+
+import useUnshiftKeyPress from "../hooks/useUnshiftKeyPress";
+
 
 /*
 
@@ -21,16 +28,45 @@ Navigation Layout:
 
  */
 
-const Frame = ({settings, char, location}) => {
+const Frame = ({settings}) => {
 
-    const [gameOnPause, setGameOnPause] = useState(false)
+    let parsedSoundOn = localStorage.getItem("soundOn") || true
+    if(parsedSoundOn === "false") parsedSoundOn = false
+    let parsedBestScore = Number(localStorage.getItem("bestScore") || 0)
+    let parsedSoundVolume = Number(localStorage.getItem("soundVolume") || 50)
+
+    const [gameOnPause, setGameOnPause] = useState(true)
     const [loseFlag, setLoseFlag] = useState(false)
     const [gameSet, setNextGameSet] = useState(1)
-    const [bestGameScore, setBestGameScore] = useState(0)
+    const [bestGameScore, setBestGameScore] = useState(parsedBestScore)
+    const [soundOn, toggleSoundOn] = useState(parsedSoundOn)
+    const [soundVolume, setSoundVolume] = useState(parsedSoundVolume)
+    const gameFrame = useRef(null)
 
-    const style = {
-        height: settings.frameHeight,
-        width: settings.frameWidth
+    const location = getLocation()
+    const char = getHero("soldier");
+
+    const keyActionsMap = {
+        SPACE: () => {
+            if (!loseFlag) {
+                onPauseToggle()
+            } else {
+                resetGame()
+            }
+        },
+        m : () => {
+            onSoundToggle()
+        }
+    }
+
+    const onSoundVolumeChange = (soundVolume) => {
+        setSoundVolume(soundVolume);
+        if(soundVolume <= 0) toggleSoundOn(false)
+        else if(soundVolume > 0 && soundOn === false) toggleSoundOn(true)
+    }
+
+    const onSoundToggle = () => {
+        toggleSoundOn(!soundOn);
     }
 
     const onPauseToggle = (flag = false, score = 0) => {
@@ -38,21 +74,54 @@ const Frame = ({settings, char, location}) => {
             setLoseFlag(true)
             if (score > bestGameScore) {
                 setBestGameScore(score)
+                localStorage.setItem("bestScore", score+"")
             }
         }
+        const bgMusic = gameFrame.current.querySelector("audio#bg-music")
+        bgMusic.play();
         setGameOnPause(!gameOnPause)
     }
 
-    const resetGameHandler = () => {
+    const resetGame = () => {
         if (loseFlag) setLoseFlag(false)
         setNextGameSet(gameSet + 1)
         setGameOnPause(false)
     }
 
+    const style = {
+        height: settings.frameHeight,
+        width: settings.frameWidth
+    }
+
+    useUnshiftKeyPress(keyActionsMap.SPACE, "SPACE")
+    useUnshiftKeyPress(keyActionsMap.m, "m")
+
+    useEffect(() => {
+        const bgMusic = gameFrame.current.querySelector("audio#bg-music")
+        bgMusic.muted = !soundOn;
+        localStorage.setItem("soundOn", soundOn? "true" : "false")
+    }, [soundOn])
+
+    useEffect(() => {
+        const bgMusic = gameFrame.current.querySelector("audio#bg-music")
+        bgMusic.volume = soundVolume/100;
+        localStorage.setItem("soundVolume", soundVolume+"")
+    }, [soundVolume])
+
+    useEffect(() => {
+        const bgMusic = gameFrame.current.querySelector("audio#bg-music")
+        bgMusic.muted = !soundOn;
+        bgMusic.volume = soundVolume/100;
+    }, [])
+
     return (
-        <div className={classesCss.Wrap}>
-            <div className={classesCss.Border} />
+        <div className={classesCss.Wrap} ref={gameFrame}>
+            <div className={classesCss.Border}/>
             <div className={classesCss.Frame} style={style}>
+                <Audio
+                    id={"bg-music"}
+                    src={location.bgMusic}
+                />
                 <GameLayout
                     key={gameSet}
                     gameOnPause={gameOnPause}
@@ -65,17 +134,24 @@ const Frame = ({settings, char, location}) => {
                 <NavigationLayout
                     gameOnPause={gameOnPause}
                     onPauseToggle={onPauseToggle}
-                    loseGame = {loseFlag}
+                    soundOn={soundOn}
+                    onSoundToggle={onSoundToggle}
+                    loseGame={loseFlag}
                 />
                 {gameOnPause ?
                     <MenuLayout
-                        onResetGame={resetGameHandler}
+                        soundInitValue = {parsedSoundVolume}
+                        soundOn={soundOn}
+                        onSoundToggle={onSoundToggle}
+                        onSoundVolumeChange={onSoundVolumeChange}
+                        onResetGame={resetGame}
+                        onPauseToggle={onPauseToggle}
                         mode={loseFlag ? "lose" : "pause"}
                     />
                     : null}
 
             </div>
-            <div className={classesCss.Border} />
+            <div className={classesCss.Border}/>
         </div>
     )
 }

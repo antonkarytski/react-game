@@ -1,8 +1,16 @@
-import {useEffect} from 'react'
+import useEventListener from './useEventListener'
 
-export default function useKeyPress(fn, action){
-    useEffect(() => {
-        window.addEventListener(action, fn);
-        return () => window.removeEventListener(action, fn);
-    },[fn])
+
+export default function useKeyPress(fnSet, action, condition = true) {
+
+    useEventListener((e) => {
+        if (condition) {
+            let dir = e.key.replace("Arrow", "").toLowerCase()
+            dir = dir === " "? "SPACE" : dir;
+            if (fnSet.hasOwnProperty(dir)) {
+                fnSet[dir]();
+                e.preventDefault();
+            }
+        }
+    }, action)
 }

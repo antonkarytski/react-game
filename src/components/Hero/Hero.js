@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react'
-import useArrowPress from "../../hooks/useArrowPress";
+import useKeyPress from "../../hooks/useKeyPress";
 import StyledHero from "./styles/StyledHero";
 
 
@@ -11,6 +11,8 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
     const [size, setSize] = useState(item.sizes.default)
     const selfElement = useRef(null);
 
+
+    //TODO: MAKE JUMPING PAUSE
     const keyActionsMap = {
         keyup: {
             down: () => {
@@ -50,19 +52,19 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
                     }, 700 * 1.5 - 200)
                 }
             },
-            left: (speed) => {
+            left: () => {
                 if (moveState !== 'jump' && moveState !== 'sit') {
                     setMoveState('run');
                     animateMoveX(-1);
-                    moveX(-speed)
+                    moveX(-5)
 
                 }
             },
-            right: (speed) => {
+            right: () => {
                 if (moveState !== 'jump' && moveState !== 'sit') {
                     setMoveState('run');
                     animateMoveX(1);
-                    moveX(speed);
+                    moveX(5);
                 }
             },
         }
@@ -103,8 +105,8 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
         }
     }
 
-    useArrowPress(keyActionsMap.keydown, "keydown", !gameOnPause)
-    useArrowPress(keyActionsMap.keyup, "keyup", !gameOnPause)
+    useKeyPress(keyActionsMap.keydown, "keydown", !gameOnPause)
+    useKeyPress(keyActionsMap.keyup, "keyup", !gameOnPause)
 
     useEffect(() => {
         if (!gameOnPause) {
@@ -118,7 +120,7 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
 
     //Init state for setting first position of hero
     useEffect(() => {
-        setMyPosition(getMyOwnPosition(selfElement))
+        setMyPosition(getMyOwnPosition(selfElement));
     }, [])
 
 
@@ -129,6 +131,9 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
         left: `${posX}px`,
         height: `${size.h}px`,
         width: `${size.w}px`
+    }
+    if(gameOnPause) {
+        styles.animationPlayState = 'paused';
     }
 
     return (

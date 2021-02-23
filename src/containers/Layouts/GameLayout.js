@@ -1,10 +1,10 @@
 import React, {useRef, useState} from 'react'
-import classes from './Layouts.module.scss'
+import classes from './styles/Layouts.module.scss'
 import Hero from '../../components/Hero/Hero';
 import Obstacle from '../../components/Obstacle/Obstacle';
 import {getRandomObstacle} from '../../gameHelper';
 import Counter from "../../components/Navigation/Counter/Counter";
-import StyledGame from "./StyledGame";
+import StyledGame from "./styles/StyledGame";
 import useTimerGenerator from "../../hooks/useTimerGenerator";
 import useTimer from "../../hooks/useTimer";
 

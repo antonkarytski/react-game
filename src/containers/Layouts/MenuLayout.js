@@ -1,31 +1,54 @@
 import React from 'react'
-import classesCss from './Layouts.module.scss'
-import Button from "../../components/Navigation/Button";
-import {faUndoAlt} from '@fortawesome/free-solid-svg-icons'
+import classesCss from './styles/Layouts.module.scss'
+import Button from "../../components/Navigation/Buttons/Button";
+import ResetButton from "../../components/Navigation/Buttons/ResetButton";
+import SoundRangeSlider from "../../components/Navigation/RangeSlider/SoundRangeSlider";
+import {faPlay} from '@fortawesome/free-solid-svg-icons';
 
-function MenuLayout({mode, onResetGame}) {
+function MenuLayout({mode, onResetGame, onPauseToggle, onSoundVolumeChange, soundOn, onSoundToggle, soundInitValue}) {
 
-    let innerContent = null;
+    let currentColonContent = null;
+    const resetClasses = [classesCss.BigButton, classesCss.ResetButton].join(" ")
     if (mode === "lose") {
-        innerContent =
-            <div>
-                <h2>ТЫ ПРОИГРАЛ</h2>
-                <div onClick={() => onResetGame()}>Начать сначала</div>
+        currentColonContent =
+            <div className={[classesCss.CurrentColumn, classesCss.LoseMessage].join(' ')}>
+                <h2>YOU LOSE</h2>
+                <ResetButton
+                    onResetGame={onResetGame}
+                    className={resetClasses}
+                />
+                <span>or press <i>SPACE</i></span>
             </div>
 
-    } else if(mode === "pause"){
-        innerContent =
-            <Button
-                onClick = {() => onResetGame()}
-                className={null}
-                valueDefault = {faUndoAlt}
-                faIcon = {true}
-            />
+    } else if (mode === "pause") {
+        currentColonContent =
+            <div className={classesCss.CurrentColumn}>
+                <ResetButton
+                    onResetGame={onResetGame}
+                    className={resetClasses}
+                />
+                <Button
+                    onClick={() => onPauseToggle()}
+                    className={classesCss.BigButton}
+                    valueDefault={faPlay}
+                    faIcon={true}
+                />
+            </div>
     }
 
     return (
         <div className={classesCss.MenuLayout}>
-            {innerContent}
+            <div className={classesCss.MenuContent}>
+                {currentColonContent}
+                <div className={classesCss.SettingColumn}>
+                    <SoundRangeSlider
+                        initValue = {soundInitValue}
+                        onSoundToggle = {onSoundToggle}
+                        soundOn = {soundOn}
+                        onChange = {onSoundVolumeChange}
+                    />
+                </div>
+            </div>
         </div>
     )
 }
