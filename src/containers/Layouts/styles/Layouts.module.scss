@@ -33,12 +33,13 @@
 .MenuLayout {
   position: absolute;
   width: 400px;
-  height: 200px;
+  height: 220px;
   background-color: rgba(0, 0, 0, 0.4);
   top: 50%;
   left: 50%;
   margin-left: -200px;
-  margin-top: -100px;
+  margin-top: -110px;
+  padding: 10px;
   color: white;
   box-sizing: border-box;
   .MenuContent{
@@ -48,16 +49,16 @@
     flex-direction: row;
 
     .CurrentColumn{
-
-
-      margin-left: 40px;
+      margin-left: 30px;
       margin-right: 40px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+
       .BigButton {
         font-size: 65px;
+        transition: color 0.4s;
 
         &:hover{
           color: #ff3d4a;
@@ -96,6 +97,23 @@
       flex-direction: column;
       width: 100%;
       align-items: flex-start;
+
+      .SelectButton{
+        margin-top: 10px;
+        font-size: 20px;
+        border: 2px solid white;
+        height: 30px;
+        border-radius: 5px;
+        width: 75%;
+        line-height: 30px;
+        text-align: center;
+        transition: background-color 0.4s;
+
+        &:hover{
+          background-color: #ff3d4a;
+        }
+      }
+
     }
   }
 }

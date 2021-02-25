@@ -1,138 +1,111 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useRef, useState} from 'react'
 import useKeyPress from "../../hooks/useKeyPress";
 import StyledHero from "./styles/StyledHero";
+import Audio from "../Helpres/Audio";
 
 
-const Hero = ({item, setMyPosition, gameOnPause}) => {
-
-    const [spritePos, setSpritePos] = useState({x : 0, y : 0})
-    const [posX, setPosX] = useState(0)
-    const [moveState, setMoveState] = useState('stand') //stand, run, jump, sit
-    const [size, setSize] = useState(item.sizes.default)
+const Hero = ({item, gameOnPause}) => {
+    const [heroState, setHeroState] = useState({
+        posX: 0,
+        move: 'stand', //stand, run, jump, sit
+        size: item.sizes.default
+    })
     const selfElement = useRef(null);
+
+    const updateHeroState = (state) => {
+        setHeroState(Object.assign({}, heroState, state));
+    }
 
 
     //TODO: MAKE JUMPING PAUSE
     const keyActionsMap = {
         keyup: {
             down: () => {
-                if(moveState === 'sit'){
-                    resetAnimation()
-                    setMoveState('stand');
-                    setSize(item.sizes.default)
+                if (heroState.move === 'sit') {
+                    const newHeroState = {
+                        move: 'stand',
+                        size: item.sizes.default
+                    }
+                    updateHeroState(newHeroState)
                 }
             },
             left: () => {
-                if (moveState === 'run') {
-                    resetAnimation()
-                    setMoveState('stand');
+                if (heroState.move === 'run') {
+                    updateHeroState({move: 'stand'})
                 }
             },
             right: () => {
-                if (moveState === 'run') {
-                    resetAnimation()
-                    setMoveState('stand');
+                if (heroState.move === 'run') {
+                    updateHeroState({move: 'stand'})
                 }
             },
         },
         keydown: {
             down: () => {
-                if (moveState !== 'jump') {
-                    setMoveState('sit');
-                    setSpritePos({x: 4, y: 2.3})
-                    setSize(item.sizes.sit)
+                if (heroState.move !== 'jump' && heroState.move !== 'sit') {
+                    const newHeroState = {
+                        move: 'sit',
+                        size: item.sizes.sit
+                    }
+                    updateHeroState(newHeroState)
                 }
             },
             up: () => {
-                if (moveState !== 'jump' && moveState !== 'sit') {
-                    setMoveState('jump');
-                    resetAnimation()
+                if (heroState.move !== 'jump' && heroState.move !== 'sit') {
+                    if(item.soundJump){
+                        selfElement.current.querySelector(`audio#jump-music`).play();
+                    }
+                    updateHeroState({move: 'jump'})
                     setTimeout(() => {
-                        setMoveState('stand');
+                        updateHeroState({move: 'stand'})
                     }, 700 * 1.5 - 200)
                 }
             },
             left: () => {
-                if (moveState !== 'jump' && moveState !== 'sit') {
-                    setMoveState('run');
-                    animateMoveX(-1);
-                    moveX(-5)
-
+                if (heroState.move !== 'jump' && heroState.move !== 'sit') {
+                    const newHeroState = {
+                        move: 'run',
+                        posX: getNextPos(-5)
+                    }
+                    updateHeroState(newHeroState)
                 }
             },
             right: () => {
-                if (moveState !== 'jump' && moveState !== 'sit') {
-                    setMoveState('run');
-                    animateMoveX(1);
-                    moveX(5);
+                if (heroState.move !== 'jump' && heroState.move !== 'sit') {
+                    const newHeroState = {
+                        move: 'run',
+                        posX: getNextPos(5)
+                    }
+
+                    updateHeroState(newHeroState)
                 }
             },
         }
     }
 
-    const animateMoveX = (val) => {
-        let spriteX = spritePos.x + val
-        if (spriteX > 11) {
-            spriteX = 0
-        } else if (spriteX < 0) {
-            spriteX = 11
-        }
-        setSpritePos({y : 4, x : spriteX});
-    }
-
-    const moveX = (val) => {
-        if (posX + val > 550) {
-            setPosX(0)
-        } else if (posX + val < 0) {
-            setPosX(550)
+    const getNextPos = (val) => {
+        if (heroState.posX + val > 550) {
+            return 0
+        } else if (heroState.posX + val < 0) {
+            return 550
         } else {
-            setPosX(posX + val)
-        }
-    }
-
-    const resetAnimation = () => {
-        setSpritePos({x:0,y:0})
-    }
-
-    const getMyOwnPosition = (self) => {
-        const left = selfElement.current.getBoundingClientRect().left
-        const top = selfElement.current.getBoundingClientRect().top
-        return {
-            left,
-            top,
-            right: left + size.w,
-            bottom: top + size.h
+            return heroState.posX + val
         }
     }
 
     useKeyPress(keyActionsMap.keydown, "keydown", !gameOnPause)
     useKeyPress(keyActionsMap.keyup, "keyup", !gameOnPause)
 
-    useEffect(() => {
-        if (!gameOnPause) {
-            if (moveState !== 'stand') {
-                setMyPosition(getMyOwnPosition(selfElement))
-            }
-        } else if (moveState === 'jump') {
-            //selfElement.current.style.animationPlayState = 'paused';
-        }
-    })
-
-    //Init state for setting first position of hero
-    useEffect(() => {
-        setMyPosition(getMyOwnPosition(selfElement));
-    }, [])
-
-
     const styles = {
         backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
-        backgroundPosition: `-${spritePos.x * 52 + 8}px -${spritePos.y * 55}px`,
+        //backgroundPosition: `-${spritePos.x * 52 + 8}px -${spritePos.y * 55}px`,
         bottom: `0px`,
-        left: `${posX}px`,
-        height: `${size.h}px`,
-        width: `${size.w}px`
+        left: `${heroState.posX}px`,
+        height: `${heroState.size.h}px`,
+        width: `${heroState.size.w}px`
+
     }
-    if(gameOnPause) {
+    if (gameOnPause) {
         styles.animationPlayState = 'paused';
     }
 
@@ -141,8 +114,19 @@ const Hero = ({item, setMyPosition, gameOnPause}) => {
             ref={selfElement}
             id={'hero'}
             style={styles}
-            jump={moveState === 'jump'}
-        />
+            jump={heroState.move === 'jump'}
+            sit={heroState.move === 'sit'}
+        >
+            {
+                item.soundJump?
+                <Audio
+                    id={"jump-music"}
+                    src={item.soundJump}
+                /> : null
+            }
+
+            {item.label}
+        </StyledHero>
     )
 }
 

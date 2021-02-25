@@ -9,6 +9,6 @@ export default function useTimer(generateFn, checkInterval  = 50, condition = tr
             }, checkInterval)
             return (() => clearInterval(generatorTimer));
         }
-    }, dependencies)
+    }, [...dependencies])
 }
 

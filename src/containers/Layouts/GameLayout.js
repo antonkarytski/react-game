@@ -2,24 +2,26 @@ import React, {useRef, useState} from 'react'
 import classes from './styles/Layouts.module.scss'
 import Hero from '../../components/Hero/Hero';
 import Obstacle from '../../components/Obstacle/Obstacle';
-import {getRandomObstacle} from '../../gameHelper';
 import Counter from "../../components/Navigation/Counter/Counter";
 import StyledGame from "./styles/StyledGame";
 import useTimerGenerator from "../../hooks/useTimerGenerator";
 import useTimer from "../../hooks/useTimer";
+import {gameHelper} from "../../gameHelper";
 
 
 const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestScore}) => {
 
-    const minTime = 700;
-    const maxTime = 2500;
     const stackSize = 8;
 
-    const [obstacles, setObstacle] = useState(Array(stackSize))
-    const [nextObstacle, setNextObstacle] = useState(0)
-    const [heroPosition, saveHeroPosition] = useState({})
+    const [obstaclesState, setObstaclesState] = useState({
+        obstacles : Array(stackSize),
+        nextObstacle : 0
+    })
     const [gameTime, setGameTime] = useState(0)
     const selfRef = useRef(null)
+
+    const minTime = 700 - Math.floor(gameTime / 2000) * 10;
+    const maxTime = 2500 - Math.floor(gameTime / 2000) * 10;
 
     function getRelPosition(objPosition){
         const windowDomRect = selfRef.current.getBoundingClientRect();
@@ -39,28 +41,30 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
         return rightCross & leftCross & topCross & bottomCross
     }
 
-
     //OBSTACLES GENERATION
 
     useTimerGenerator(() => {
-        const obstaclesToAdd = [...obstacles];
-        const newObstacle = getRandomObstacle()
+        const obstaclesToAdd = [...obstaclesState.obstacles];
+        const newObstacle = gameHelper.getRandomObstacle()
         newObstacle.position = 600 // set start position
-        obstaclesToAdd[nextObstacle] = newObstacle;
-        setObstacle(obstaclesToAdd);
-        setNextObstacle(nextObstacle < stackSize - 1 ? nextObstacle + 1 : 0)
+        newObstacle.speed = Math.floor(gameTime / 2000) + 1
+        obstaclesToAdd[obstaclesState.nextObstacle] = newObstacle;
+        setObstaclesState({
+            obstacles : obstaclesToAdd,
+            nextObstacle : obstaclesState.nextObstacle < stackSize - 1 ? obstaclesState.nextObstacle + 1 : 0
+        });
     }, [minTime, maxTime], !gameOnPause)
 
 
     //OBSTACLES LIFECYCLE\
 
     useTimer(() => {
-        const obstaclesToMove = obstacles.map((obstacle, index) => {
+        const obstaclesToMove = obstaclesState.obstacles.map((obstacle, index) => {
             if (obstacle?.display) {
                 const obstacleDom = selfRef.current.querySelector(`[data-index = "${index}"]`)
-                const obstaclePosition = obstacleDom.getBoundingClientRect();
-                const obstacleRelPosition = getRelPosition(obstaclePosition);
-                const heroRelPosition = getRelPosition(heroPosition);
+                const heroDom = selfRef.current.querySelector('#hero')
+                const obstacleRelPosition = getRelPosition(obstacleDom.getBoundingClientRect());
+                const heroRelPosition = getRelPosition(heroDom.getBoundingClientRect());
                 if (obstacleRelPosition.left <= -40) {
                     obstacle.display = false;
                 } else {
@@ -72,13 +76,15 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
             }
             return obstacle
         })
-        setObstacle(obstaclesToMove)
-        setGameTime(gameTime + 20)
-    }, 20, !gameOnPause, obstacles, gameOnPause)
+        setObstaclesState({
+            obstacles : obstaclesToMove,
+            nextObstacle : obstaclesState.nextObstacle
+        })
+        setGameTime(gameTime + 40)
+    }, 40, !gameOnPause, obstaclesState, gameOnPause)
 
     const selfStyle =  {
         backgroundImage: `url(${process.env.PUBLIC_URL + location.image})`,
-        backgroundPosition: `-${gameTime / 5 % 768}px`
     }
     if (gameOnPause) selfStyle.animationPlayState = "paused";
 
@@ -87,18 +93,20 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
             ref={selfRef}
             style={selfStyle}
             className={classes.GameLayout}>
+
             <Counter
                 bestScore={bestScore}
                 score={gameTime}
                 className={"counter"}/>
+
             <Hero
                 gameOnPause={gameOnPause}
-                setMyPosition={saveHeroPosition}
                 item={char}
                 settings={settings}
             />
+
             {
-                obstacles.map((obstacle, index) => {
+                obstaclesState.obstacles.map((obstacle, index) => {
                     if (obstacle?.display) {
                         return (
                             <Obstacle

@@ -12,5 +12,5 @@ export default function useKeyPress(fnSet, action, condition = true) {
                 e.preventDefault();
             }
         }
-    }, action)
+    }, [action])
 }

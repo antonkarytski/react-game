@@ -5,8 +5,6 @@ import classesCss from "./SoundRangeSlider.module.scss"
 export default function SoundRangeSlider({onChange, onSoundToggle, soundOn, initValue}){
 
     const [sliderValue, setSliderValue] = useState(initValue)
-    const min = 0;
-    const max = 100;
 
     const handleChange = (e) => {
         setSliderValue(e.target.value);
@@ -22,8 +20,8 @@ export default function SoundRangeSlider({onChange, onSoundToggle, soundOn, init
                 onChange={(e) => handleChange(e)}
                 type={"range"}
                 value={sliderValue}
-                min={min}
-                max={max}
+                min={0}
+                max={100}
                 className={"slider"}
                 id={"myRange"}
                 onMouseUp={() => onChange(sliderValue)}

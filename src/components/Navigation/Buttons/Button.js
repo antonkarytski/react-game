@@ -19,6 +19,7 @@ function Button(props) {
         valueToggled,
         className,
         onClick,
+        style,
         faIcon = false
     } = props
     const toggled = props.toggled? props.toggled : false;
@@ -47,6 +48,7 @@ function Button(props) {
 
     return (
         <div
+            style={style}
             className={classes.join(" ")}
             onClick={() => buttonClickHandler()}
         >
