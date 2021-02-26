@@ -4,11 +4,14 @@ export const LOCATIONS = [
     {
         name: "jungle",
         label: "Опасные джунгли",
+        preview: "",
+
 
         heroes: [
             {
                 name: "soldier",
                 label: "Soldier 1",
+                soundJump: true,
                 sizes : {
                     default : {
                         w : 40,
@@ -69,21 +72,25 @@ export const LOCATIONS = [
                 type: "private",
                 label: "ОМОН",
                 weight: 0,
+                sprite: false
             }),
             easyObstacle.lowGrounded({
                 type: "fat private",
                 label: "МАЛЕНЬКИЙ ОМОН",
                 weight: 0,
+                sprite: false
             }),
             easyObstacle.lowGrounded({
                 type: "wagon",
                 label: "АВТОЗАК",
                 weight: 0,
+                sprite: false
             }),
             easyObstacle.littleFly({
                 type: "grenade",
                 label: "СВЕТОШУМОВАЯ",
                 weight: 0,
+                sprite: false
             }),
             {
                 type: "monster-1",
@@ -92,7 +99,7 @@ export const LOCATIONS = [
                 width: 40,
                 height: 46,
                 altitude: 0,
-                sprite: 'monster-1'
+                sprite: true,
             },
             {
                 type: "monster-2",
@@ -101,7 +108,7 @@ export const LOCATIONS = [
                 width: 45,
                 height: 35,
                 altitude: [10, 60],
-                sprite: 'monster-2'
+                sprite: true,
             }
         ],
 

@@ -1,16 +1,29 @@
 import React, {useState} from 'react'
+import './styles/style.scss'
 import classesCss from './styles/Layouts.module.scss'
 import Button from "../../components/Navigation/Buttons/Button";
 import ResetButton from "../../components/Navigation/Buttons/ResetButton";
 import SoundRangeSlider from "../../components/Navigation/RangeSlider/SoundRangeSlider";
 import StatisticMenu from "../../components/Navigation/Menu/StatisticMenu"
-import HeroPickMenu from "../../components/Navigation/Menu/HeroPickMenu/HeroPickMenu";
-import LocationPickMenu from "../../components/Navigation/Menu/LocationPickMenu/LocationPickMenu";
+import PickMenu from "../../components/Navigation/Menu/PickMenu";
 import {faPlay} from '@fortawesome/free-solid-svg-icons';
 
-function MenuLayout({mode, onResetGame, onPauseToggle, onSoundVolumeChange, soundOn,
-                        onSoundToggle, soundInitValue, heroes, heroSelectHandler, currentHero, locationSet,
-                    locationSelectHandler, currentLocation}) {
+function MenuLayout(props) {
+
+    const {
+        mode,
+        onResetGame,
+        onPauseToggle,
+        soundInitValue,
+        onSoundVolumeChange,
+        onSoundToggle,
+        soundOn,
+        heroes,
+        heroSelectHandler,
+        currentHero,
+        locationSet,
+        locationSelectHandler,
+        currentLocation} = props
 
     const [menuMode, setMenuState] = useState('init') //init, start, heroSelect, locationSelect, lose, pause
 
@@ -78,27 +91,31 @@ function MenuLayout({mode, onResetGame, onPauseToggle, onSoundVolumeChange, soun
             break
         case "heroSelect":
             menuContent =
-                    <HeroPickMenu
-                        currentHero = {currentHero}
-                        selectHero={heroSelectHandler}
-                        heroes={heroes}
-                        onBack={() => setMenuState("init")}
-                    />
+                <PickMenu
+                    itemClasses={"hero"}
+                    currentItem={currentHero}
+                    pickItemHandler={heroSelectHandler}
+                    itemSet={heroes}
+                    onBackHandler={() => setMenuState("init")}
+                    previewType={"card"}
+                />
             break
         case "locationSelect":
             menuContent =
-                    <LocationPickMenu
-                        currentLocation={currentLocation}
-                        selectLocation={locationSelectHandler}
-                        locationSet={locationSet}
-                        onBack={() => setMenuState("init")}
-                    />
+                <PickMenu
+                    itemClasses={"location"}
+                    currentItem={currentLocation}
+                    pickItemHandler={locationSelectHandler}
+                    itemSet={locationSet}
+                    onBackHandler={() => setMenuState("init")}
+                    previewType={"full"}
+                />
             break
         case "statistic":
             menuContent =
-                    <StatisticMenu
-                        onBack={() => setMenuState("init")}
-                    />
+                <StatisticMenu
+                    onBack={() => setMenuState("init")}
+                />
             break
         default:
             currentColonContent = null

@@ -35,16 +35,16 @@ function Button(props) {
         buttonContent = <FontAwesomeIcon icon={buttonContent}/>
     }
 
-    useEffect(() => {
-        changeButtonState(toggled)
-    }, [toggled])
-
     const buttonClickHandler = () => {
         if(condition ?? true){
             if(onClick) onClick()
             if(valueToggled) changeButtonState(!buttonToggled)
         }
     }
+
+    useEffect(() => {
+        changeButtonState(toggled)
+    }, [toggled])
 
     return (
         <div

@@ -1,23 +1,22 @@
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import useKeyPress from "../../hooks/useKeyPress";
 import StyledHero from "./styles/StyledHero";
 import Audio from "../Helpres/Audio";
 
 
-const Hero = ({item, gameOnPause}) => {
+const Hero = ({item, gameOnPause, soundOn, soundVolume}) => {
+
     const [heroState, setHeroState] = useState({
         posX: 0,
         move: 'stand', //stand, run, jump, sit
         size: item.sizes.default
     })
-    const selfElement = useRef(null);
+    const heroDom = useRef(null);
 
-    const updateHeroState = (state) => {
-        setHeroState(Object.assign({}, heroState, state));
+    const soundMap = {
+        soundJump : "jump-music",
     }
 
-
-    //TODO: MAKE JUMPING PAUSE
     const keyActionsMap = {
         keyup: {
             down: () => {
@@ -52,9 +51,7 @@ const Hero = ({item, gameOnPause}) => {
             },
             up: () => {
                 if (heroState.move !== 'jump' && heroState.move !== 'sit') {
-                    if(item.soundJump){
-                        selfElement.current.querySelector(`audio#jump-music`).play();
-                    }
+                    playSound("soundJump");
                     updateHeroState({move: 'jump'})
                     setTimeout(() => {
                         updateHeroState({move: 'stand'})
@@ -83,6 +80,16 @@ const Hero = ({item, gameOnPause}) => {
         }
     }
 
+    const updateHeroState = (state) => {
+        setHeroState(Object.assign({}, heroState, state));
+    }
+
+    const playSound = (sound) => {
+        if(item[sound]){
+            heroDom.current.querySelector(`audio#${soundMap[sound]}`).play();
+        }
+    }
+
     const getNextPos = (val) => {
         if (heroState.posX + val > 550) {
             return 0
@@ -94,24 +101,33 @@ const Hero = ({item, gameOnPause}) => {
     }
 
     useKeyPress(keyActionsMap.keydown, "keydown", !gameOnPause)
-    useKeyPress(keyActionsMap.keyup, "keyup", !gameOnPause)
+    useKeyPress(keyActionsMap.keyup, "keyup")
+
+    useEffect(() => {
+        for(let sound in soundMap){
+            if(item[sound]){
+                const soundEffect = heroDom.current.querySelector(`audio#${soundMap[sound]}`);
+                soundEffect.muted = !soundOn;
+                soundEffect.volume = soundVolume / 100;
+            }
+        }
+    }, [soundOn,soundVolume])
 
     const styles = {
         backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
-        //backgroundPosition: `-${spritePos.x * 52 + 8}px -${spritePos.y * 55}px`,
-        bottom: `0px`,
         left: `${heroState.posX}px`,
         height: `${heroState.size.h}px`,
         width: `${heroState.size.w}px`
-
     }
+
     if (gameOnPause) {
         styles.animationPlayState = 'paused';
     }
 
+
     return (
         <StyledHero
-            ref={selfElement}
+            ref={heroDom}
             id={'hero'}
             style={styles}
             jump={heroState.move === 'jump'}

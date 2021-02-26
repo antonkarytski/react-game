@@ -19,7 +19,7 @@ const Obstacle = ({item, index, className, gameOnPause}) => {
         border: '1px solid black'
     }
 
-    if(sprite) {styles.backgroundImage = `url(${process.env.PUBLIC_URL + sprite})`;}
+    if(sprite) {styles.backgroundImage = `url(${process.env.PUBLIC_URL +"/"+sprite})`;}
     else {styles.backgroundColor = 'red'}
     if(gameOnPause) {
         styles.animationPlayState = 'paused';

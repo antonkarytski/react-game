@@ -9,7 +9,7 @@ import useTimer from "../../hooks/useTimer";
 import {gameHelper} from "../../gameHelper";
 
 
-const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestScore}) => {
+const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestScore, soundVolume, soundOn}) => {
 
     const stackSize = 8;
 
@@ -58,6 +58,7 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
 
     //OBSTACLES LIFECYCLE\
 
+    const step = 40;
     useTimer(() => {
         const obstaclesToMove = obstaclesState.obstacles.map((obstacle, index) => {
             if (obstacle?.display) {
@@ -69,7 +70,7 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
                     obstacle.display = false;
                 } else {
                     if (checkCollision(heroRelPosition,obstacleRelPosition)) {
-                        onPauseToggle(true, gameTime)
+                        onPauseToggle(true, gameTime + step)
                     }
                     obstacle.position = obstacleRelPosition.left;
                 }
@@ -80,11 +81,11 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
             obstacles : obstaclesToMove,
             nextObstacle : obstaclesState.nextObstacle
         })
-        setGameTime(gameTime + 40)
-    }, 40, !gameOnPause, obstaclesState, gameOnPause)
+        setGameTime(gameTime + step)
+    }, step, !gameOnPause, obstaclesState, gameOnPause)
 
     const selfStyle =  {
-        backgroundImage: `url(${process.env.PUBLIC_URL + location.image})`,
+        backgroundImage: `url(${process.env.PUBLIC_URL + "/" + location.bgImage})`,
     }
     if (gameOnPause) selfStyle.animationPlayState = "paused";
 
@@ -100,6 +101,8 @@ const GameLayout = ({char, settings, onPauseToggle, gameOnPause, location, bestS
                 className={"counter"}/>
 
             <Hero
+                soundVolume = {soundVolume}
+                soundOn = {soundOn}
                 gameOnPause={gameOnPause}
                 item={char}
                 settings={settings}

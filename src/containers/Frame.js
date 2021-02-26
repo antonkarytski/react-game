@@ -32,168 +32,206 @@ const Frame = ({settings}) => {
 
     //Get saved values
     const savedSoundOn = Boolean(getSavedNumberVal("soundOn", 0))
-    const savedBestScore = getSavedNumberVal("bestScore", 0)
     const savedSoundVolume = getSavedNumberVal("soundVolume", 50)
     const savedHeroIndex = getSavedNumberVal("hero", 0)
     const savedLocation = getSavedNumberVal("location", 0)
 
-    if(savedLocation) gameHelper.setLocation(savedLocation)
-    const environment = gameHelper.getEnvironment()
+    if (savedLocation) gameHelper.setLocation(savedLocation)
 
-    const [gameOnPause, setGameOnPause] = useState(true)
-    const [loseFlag, setLoseFlag] = useState(false)
-    const [gameSet, setNextGameSet] = useState(1) //for refreshing game and save count of games
-    const [bestGameScore, setBestGameScore] = useState(savedBestScore)
-    const [soundOn, toggleSoundOn] = useState(savedSoundOn)
-    const [soundVolume, setSoundVolume] = useState(savedSoundVolume)
-    const [hero, setHero] = useState({item: gameHelper.getHero(savedHeroIndex), index: 0})
-    const [location, setLocation] = useState(savedLocation)
+    const [hero, setHero] = useState({
+        item: gameHelper.getHero(savedHeroIndex),
+        index: savedHeroIndex
+    })
+
+    const [gameState, setGameState] = useState({
+        pause: true,
+        lose: false,
+        set: 1,
+    })
+
+    const [soundState, setSoundState] = useState({
+        on: savedSoundOn,
+        volume: savedSoundVolume
+    })
+
+    const [locationData, setLocationData] = useState({
+        index: savedLocation,
+        heroes: gameHelper.heroes,
+        environment: gameHelper.getEnvironment()
+    })
+
     const gameFrame = useRef(null)
 
     const keyActionsMap = {
         SPACE: () => {
-            if (!loseFlag) {
+            if (!gameState.lose) {
                 onPauseToggle()
             } else {
                 resetGame()
             }
         },
-        m : () => {
+        m: () => {
             onSoundToggle()
         }
     }
 
-    function getMusic(selector){
-        return gameFrame.current.querySelector(`audio#${selector}`)
-    }
 
-    function getSavedNumberVal(val, defaultVal){
+    function getSavedNumberVal(val, defaultVal) {
         return Number(localStorage.getItem(val) || defaultVal)
     }
 
-    const onSoundVolumeChange = (soundVolume) => {
-        setSoundVolume(soundVolume);
-        if(soundVolume <= 0) toggleSoundOn(false)
-        else if(soundVolume > 0 && soundOn === false) toggleSoundOn(true)
+    function getMusic(selector) {
+        return gameFrame.current.querySelector(`audio#${selector}`)
     }
 
+    const onSoundVolumeChange = (soundVolume) => {
+        setSoundState({
+            volume: soundVolume,
+            on: soundVolume > 0
+        })
+    }
+
+
     const onSoundToggle = () => {
-        toggleSoundOn(!soundOn);
+        setSoundState({
+            //if turn on sound when volume = 0, set volume = 10(0.1)
+            volume: !soundState.on && soundState.volume <= 0 ? 10 : soundState.volume,
+            on: !soundState.on
+        })
     }
 
     const onPauseToggle = (flag = false, score = 0) => {
-        if (flag) {
-            setLoseFlag(true)
-            if (score > bestGameScore) {
-                setBestGameScore(score)
-                localStorage.setItem("bestScore", score+"")
-            }
+
+        if (score > getSavedNumberVal("bestScore", 0)) {
+            localStorage.setItem("bestScore", score + "")
         }
 
+        setGameState({
+            lose: flag,
+            pause: !gameState.pause,
+            set: gameState.set,
+        })
+
         //Call here cause user have to do some action before music starts, so music starts after user press key for game start
-        const bgMusic = getMusic("bg-music");
-        bgMusic.play();
-        setGameOnPause(!gameOnPause)
+        if (locationData.environment.bgMusic) {
+            const bgMusic = getMusic("bg-music")
+            if (bgMusic.paused) bgMusic.play();
+        }
     }
 
     const resetGame = () => {
-        if (loseFlag) setLoseFlag(false)
-        setNextGameSet(gameSet + 1)
-        setGameOnPause(false)
+        setGameState({
+            lose: gameState.lose ? false : gameState.lose,
+            pause: false,
+            set: gameState.set + 1
+        })
     }
 
     const heroSelectHandler = (index) => {
         setHero({
-            item : gameHelper.getHero(index),
+            item: gameHelper.getHero(index),
             index
         })
     }
 
     const locationSelectHandler = (index) => {
         gameHelper.setLocation(index)
-        setLocation(index)
+        setLocationData({
+            index: index,
+            heroes: gameHelper.heroes,
+            environment: gameHelper.getEnvironment()
+        })
         heroSelectHandler(0)
     }
+
+
+    useUnshiftKeyPress(keyActionsMap.SPACE, "SPACE")
+    useUnshiftKeyPress(keyActionsMap.m, "m")
+
+    useEffect(() => {
+        localStorage.setItem("hero", hero.index + "")
+    }, [hero])
+
+    useEffect(() => {
+        const bgMusic = getMusic("bg-music");
+        bgMusic.muted = !soundState.on;
+        bgMusic.volume = soundState.volume / 100;
+        localStorage.setItem("location", locationData.index + "")
+    }, [locationData.index])
+
+    useEffect(() => {
+        if(locationData.environment.bgMusic){
+            const bgMusic = getMusic("bg-music");
+            bgMusic.muted = !soundState.on;
+        }
+        localStorage.setItem("soundOn", soundState.on ? "1" : "0")
+    }, [soundState.on])
+
+    useEffect(() => {
+        if(locationData.environment.bgMusic){
+            const bgMusic = getMusic("bg-music");
+            bgMusic.volume = soundState.volume / 100;
+        }
+        localStorage.setItem("soundVolume", soundState.volume + "")
+    }, [soundState.volume])
+
+    useEffect(() => {
+        if(locationData.bgMusic){
+            const bgMusic = getMusic("bg-music");
+            bgMusic.muted = !soundState.on;
+            bgMusic.volume = soundState.volume / 100;
+        }
+    }, [])
 
     const style = {
         height: settings.frameHeight,
         width: settings.frameWidth
     }
 
-    useUnshiftKeyPress(keyActionsMap.SPACE, "SPACE")
-    useUnshiftKeyPress(keyActionsMap.m, "m")
-
-    useEffect(() => {
-        localStorage.setItem("hero", hero.index+"")
-    }, [hero])
-
-    useEffect(() => {
-        localStorage.setItem("location", location+"")
-    }, [location])
-
-    useEffect(() => {
-        const bgMusic = getMusic("bg-music");
-        bgMusic.muted = !soundOn;
-        localStorage.setItem("soundOn", soundOn? "1" : "0")
-    }, [soundOn])
-
-    useEffect(() => {
-        const bgMusic = getMusic("bg-music");
-        bgMusic.volume = soundVolume/100;
-        localStorage.setItem("soundVolume", soundVolume+"")
-    }, [soundVolume])
-
-    useEffect(() => {
-        const bgMusic = getMusic("bg-music");
-        bgMusic.muted = !soundOn;
-        bgMusic.volume = soundVolume/100;
-    }, [])
-
     return (
         <div className={classesCss.Wrap} ref={gameFrame}>
             <div className={classesCss.Border}/>
             <div className={classesCss.Frame} style={style}>
                 <Audio
-                    loop = {true}
+                    loop={true}
                     id={"bg-music"}
-                    src={environment.bgMusic}
+                    src={locationData.environment.bgMusic}
                 />
                 <GameLayout
-                    soundVolume={soundVolume}
-                    soundOn={soundOn}
-                    key={gameSet}
-                    gameOnPause={gameOnPause}
+                    soundVolume={soundState.volume}
+                    soundOn={soundState.on}
+                    key={gameState.set}
+                    gameOnPause={gameState.pause}
                     onPauseToggle={onPauseToggle}
                     char={hero.item}
                     settings={settings}
-                    location={environment}
-                    bestScore={bestGameScore}
+                    location={locationData.environment}
+                    bestScore={getSavedNumberVal("bestScore", 0)}
                 />
                 <NavigationLayout
-                    gameOnPause={gameOnPause}
+                    gameOnPause={gameState.pause}
+                    loseGame={gameState.lose}
                     onPauseToggle={onPauseToggle}
-                    soundOn={soundOn}
+                    soundOn={soundState.on}
                     onSoundToggle={onSoundToggle}
-                    loseGame={loseFlag}
                 />
-                {gameOnPause ?
+                {gameState.pause ?
                     <MenuLayout
-                        currentLocation = {location}
-                        locationSelectHandler = {locationSelectHandler}
-                        locationSet = {gameHelper.locationSet}
-                        currentHero = {hero.index}
-                        heroSelectHandler = {heroSelectHandler}
-                        heroes = {gameHelper.heroes}
-                        soundInitValue = {savedSoundVolume}
-                        soundOn={soundOn}
-                        onSoundToggle={onSoundToggle}
+                        currentLocation={locationData.index}
+                        locationSelectHandler={locationSelectHandler}
+                        locationSet={gameHelper.locationSet}
+                        currentHero={hero.index}
+                        heroSelectHandler={heroSelectHandler}
+                        heroes={locationData.heroes} //
+                        soundInitValue={savedSoundVolume} //
+                        soundOn={soundState.on} //
+                        onSoundToggle={onSoundToggle} //
                         onSoundVolumeChange={onSoundVolumeChange}
                         onResetGame={resetGame}
-                        onPauseToggle={onPauseToggle}
-                        mode={loseFlag ? "lose" : "pause"}
+                        onPauseToggle={onPauseToggle} //
+                        mode={gameState.lose ? "lose" : "pause"} //
                     />
                     : null}
-
             </div>
             <div className={classesCss.Border}/>
         </div>

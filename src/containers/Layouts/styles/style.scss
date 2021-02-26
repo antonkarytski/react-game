@@ -1,3 +1,6 @@
-.button{
-
+.location {
+  &.selected {
+    border: 3px solid rgba(255, 61, 74, 1) !important;
+  }
 }
+

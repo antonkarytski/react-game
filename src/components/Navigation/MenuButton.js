@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBars, faTimes} from '@fortawesome/free-solid-svg-icons'
-import classesCss from './Button.module.scss'
+import classesCss from './Buttons/Buttons.module.scss'
 
 const MenuButton = ({className, onPauseToggle}) => {
 

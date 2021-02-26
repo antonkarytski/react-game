@@ -8,6 +8,7 @@ import SoundButton from "../../components/Navigation/Buttons/SoundButton";
 const NavigationLayout = ({loseGame, gameOnPause, onPauseToggle, onSoundToggle, soundOn}) => {
 
     return(
+        <>
         <div className={classes.NavigationLayout}>
             <Button
                 onClick = {onPauseToggle}
@@ -24,6 +25,7 @@ const NavigationLayout = ({loseGame, gameOnPause, onPauseToggle, onSoundToggle, 
                 soundOn = {soundOn}
             />
         </div>
+        </>
     )
 }
 
