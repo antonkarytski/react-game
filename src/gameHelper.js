@@ -1,10 +1,10 @@
 import {LOCATIONS} from "./characters";
 
 export const SETTINGS = {
-    frameWidth: 600,
-    frameHeight: 300,
+    frameWidth: 800,
+    frameHeight: 500,
 
-    defaultLocation: 'jungle',
+    defaultLocation: 0,
     pathToAssets : 'assets',
 
     locationSoundFolder : 'sounds',
@@ -25,13 +25,17 @@ export const SETTINGS = {
         height: 30,
         altitude: 0,
         sprite: true,
+        display: true,
+        position: 0,
+        customBgSize: false,
+        sizeCorrection: 0,
     },
 
     heroFolder: 'chars',
     defaultHeroSprite: 'sprite.png',
     defaultHeroProps: {
         preview: 'preview.png',
-        soundBorn: 'born.mp3',
+        soundHello: 'hello.mp3',
         soundJump: 'jump.mp3'
     },
     heroPrototype : {
@@ -46,8 +50,10 @@ export const SETTINGS = {
             }
         },
         preview: true,
-        soundBorn : false,
-        soundJump : false
+        soundHello : false,
+        soundJump : false,
+        spriteRunPositions: [{x: 0, y: 0},{x: 299, y: 0}],
+        spriteRunSteps: 3
     },
 }
 
@@ -72,14 +78,14 @@ class gameHelperClass{
 
     //Prepare All objects for using in app, so when user change location all objects re-preparing
 
-    setLocation(locationName = this.SETTINGS.defaultLocation){
+    setLocation(locationName = this.SETTINGS.defaultLocation, message="none"){
         if(typeof locationName === "string"){
             locationName = this.LOCATIONS.findIndex((location) => {
                 return location.name === locationName
-
             })
         }
         this.currentLocation = this.LOCATIONS[locationName];
+        this.currenLocationIndex = locationName
         this.pathToLocation = this.SETTINGS.pathToAssets + "/" + this.currentLocation.name
         this.obstacleWeights = this.setWeights(this.currentLocation.obstacles)
         this.obstacles = this.prepareObstacleSet(this.currentLocation.obstacles)
@@ -117,19 +123,16 @@ class gameHelperClass{
     }
 
     prepareObstacleSet(unpreparedObstacleSet = this.currentLocation.obstacles){
-        const obstaclePrototype = {
-            display: true,
-            position: 0
-        }
-        return unpreparedObstacleSet.map((obstacle) => {
-            const preparedObstacle = Object.assign(this.SETTINGS.obstaclesPrototype, obstaclePrototype, obstacle)
 
-            if(obstacle.sprite){
+        return unpreparedObstacleSet.map((obstacle) => {
+            const preparedObstacle = Object.assign({},this.SETTINGS.obstaclesPrototype, obstacle)
+            if(preparedObstacle.sprite){
                 const obstacleSpriteFile = typeof obstacle.sprite === "string"? obstacle.sprite : this.SETTINGS.defaultObstacleSprite
+
                 const spritePath = `${this.SETTINGS.obstacleFolder}/${obstacle.type}/${obstacleSpriteFile}`
                 preparedObstacle.sprite = `${this.pathToLocation}/${spritePath}`
-            }
 
+            }
             return preparedObstacle
         })
     }
@@ -154,6 +157,10 @@ class gameHelperClass{
 
             return preparedHero
         })
+    }
+
+    getHeroSet(locationIndex){
+        return this.prepareHeroSet(this.LOCATIONS[locationIndex].heroes);
     }
 
     prepareEnvironment(unpreparedEnv){
@@ -199,7 +206,10 @@ class gameHelperClass{
         return typeof heroIndex === "number" ? this.heroes[heroIndex] : this.heroes[this.heroMap.indexOf(heroIndex)];
     }
 
-    getEnvironment(){
+    getEnvironment(locationIndex){
+        if(locationIndex){
+            return this.prepareEnvironment(this.LOCATIONS[locationIndex].environment)
+        }
         return this.environment;
     }
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import Button from "./Button";
 import {faVolumeDown, faVolumeMute} from '@fortawesome/free-solid-svg-icons'
 
-export default function SoundButton({onSoundToggle, soundOn, className}){
+export default function SoundButton({onSoundToggle, soundMuted, className}){
 
     return(
         <Button
@@ -11,7 +11,7 @@ export default function SoundButton({onSoundToggle, soundOn, className}){
             valueDefault = {faVolumeDown}
             valueToggled = {faVolumeMute}
             faIcon = {true}
-            toggled = {soundOn}
+            toggled = {!soundMuted}
         />
     )
 }

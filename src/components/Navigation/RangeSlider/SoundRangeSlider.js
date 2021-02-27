@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import SoundButton from "../Buttons/SoundButton";
 import classesCss from "./SoundRangeSlider.module.scss"
 
-export default function SoundRangeSlider({onChange, onSoundToggle, soundOn, initValue}){
+export default function SoundRangeSlider({onChange, onSoundToggle, soundMuted, initValue}){
 
     const [sliderValue, setSliderValue] = useState(initValue)
 
@@ -14,7 +14,7 @@ export default function SoundRangeSlider({onChange, onSoundToggle, soundOn, init
         <div className = {classesCss.SoundRangeSlider}>
             <SoundButton
                 onSoundToggle = {onSoundToggle}
-                soundOn = {soundOn}
+                soundMuted = {soundMuted}
                 className={classesCss.SoundButton}/>
             <input
                 onChange={(e) => handleChange(e)}

@@ -1,7 +1,7 @@
 import React from 'react'
 import StyledObstacle from './styles/StyledObstacle'
 
-const Obstacle = ({item, index, className, gameOnPause}) => {
+const Obstacle = ({item, index, className, gameOnPause, frameWidth}) => {
 
     const {
         speed,
@@ -15,8 +15,7 @@ const Obstacle = ({item, index, className, gameOnPause}) => {
         width: `${width}px`,
         height: `${height}px`,
         bottom: altitude || 0,
-        backgroundSize: 'contain',
-        border: '1px solid black'
+        backgroundSize: item.customBgSize || 'contain',
     }
 
     if(sprite) {styles.backgroundImage = `url(${process.env.PUBLIC_URL +"/"+sprite})`;}
@@ -27,6 +26,7 @@ const Obstacle = ({item, index, className, gameOnPause}) => {
 
     return (
         <StyledObstacle
+            frameWidth={frameWidth}
             speed = {speed}
             data-index = {index}
             className = {className}

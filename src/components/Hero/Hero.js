@@ -3,18 +3,21 @@ import useKeyPress from "../../hooks/useKeyPress";
 import StyledHero from "./styles/StyledHero";
 import Audio from "../Helpres/Audio";
 
-
-const Hero = ({item, gameOnPause, soundOn, soundVolume}) => {
+const Hero = ({item, gameOnPause, soundMuted, soundVolume}) => {
 
     const [heroState, setHeroState] = useState({
         posX: 0,
         move: 'stand', //stand, run, jump, sit
         size: item.sizes.default
-    })
+    });
+    const [firstLoad, setFirstLoad] = useState(true)
     const heroDom = useRef(null);
 
+
+    //redundant
     const soundMap = {
         soundJump : "jump-music",
+        soundHello : "hello-music"
     }
 
     const keyActionsMap = {
@@ -107,11 +110,41 @@ const Hero = ({item, gameOnPause, soundOn, soundVolume}) => {
         for(let sound in soundMap){
             if(item[sound]){
                 const soundEffect = heroDom.current.querySelector(`audio#${soundMap[sound]}`);
-                soundEffect.muted = !soundOn;
+                soundEffect.muted = soundMuted;
                 soundEffect.volume = soundVolume / 100;
             }
         }
-    }, [soundOn,soundVolume])
+    }, [soundMuted,soundVolume])
+
+    useEffect(() => {
+        updateHeroState({
+            size: item.sizes.default
+        })
+        for(let sound in soundMap){
+            if(item[sound]){
+                const soundEffect = heroDom.current.querySelector(`audio#${soundMap[sound]}`);
+                soundEffect.muted = soundMuted;
+                soundEffect.volume = soundVolume / 100;
+            }
+        }
+    }, [item])
+
+    useEffect(() => {
+        if(!gameOnPause && firstLoad){
+            playSound("soundHello");
+            setFirstLoad(false);
+        }
+    }, [gameOnPause])
+
+    const soundArray = []
+    for(let sound in soundMap){
+        if(item[sound]){
+            soundArray.push({
+                id : soundMap[sound],
+                src : item[sound]
+            })
+        }
+    }
 
     const styles = {
         backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
@@ -120,10 +153,13 @@ const Hero = ({item, gameOnPause, soundOn, soundVolume}) => {
         width: `${heroState.size.w}px`
     }
 
+    if(heroState.move === 'jump' && item.spriteJumpPosition){
+        styles.backgroundPosition = `-${item.spriteJumpPosition.x}px -${item.spriteJumpPosition.y}px`
+    }
+
     if (gameOnPause) {
         styles.animationPlayState = 'paused';
     }
-
 
     return (
         <StyledHero
@@ -132,18 +168,25 @@ const Hero = ({item, gameOnPause, soundOn, soundVolume}) => {
             style={styles}
             jump={heroState.move === 'jump'}
             sit={heroState.move === 'sit'}
+            spriteRunPositions={item.spriteRunPositions}
+            spriteRunSteps = {item.spriteRunSteps}
+            spriteSitPositions={item.spriteSitPositions}
+            heroSizes={item.sizes}
         >
             {
-                item.soundJump?
-                <Audio
-                    id={"jump-music"}
-                    src={item.soundJump}
-                /> : null
+                soundArray.map((sound, index) => {
+                    return(
+                        <Audio
+                            key={sound.id + index}
+                            id={sound.id}
+                            src={sound.src}
+                        />
+                    )
+                })
             }
-
-            {item.label}
         </StyledHero>
     )
 }
+
 
 export default Hero;

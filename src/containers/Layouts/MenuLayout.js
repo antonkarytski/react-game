@@ -11,21 +11,12 @@ import {faPlay} from '@fortawesome/free-solid-svg-icons';
 function MenuLayout(props) {
 
     const {
-        mode,
-        onResetGame,
-        onPauseToggle,
-        soundInitValue,
-        onSoundVolumeChange,
-        onSoundToggle,
-        soundOn,
-        heroes,
-        heroSelectHandler,
-        currentHero,
-        locationSet,
-        locationSelectHandler,
-        currentLocation} = props
+        game,
+        locationData,
+        heroData,
+        sound} = props
 
-    const [menuMode, setMenuState] = useState('init') //init, start, heroSelect, locationSelect, lose, pause
+    const [menuMode, setMenuMode] = useState('init') //init, start, heroSelect, locationSelect, lose, pause
 
     let currentColonContent = null;
     let menuContent = null;
@@ -34,26 +25,26 @@ function MenuLayout(props) {
 
     switch (menuMode) {
         case "init":
-            if (mode === "lose") {
+            if (game.state.lose) {
                 currentColonContent =
                     <div className={[classesCss.CurrentColumn, classesCss.LoseMessage].join(' ')}>
                         <h2>YOU LOSE</h2>
                         <ResetButton
-                            onResetGame={onResetGame}
+                            onResetGame={game.onResetGame}
                             className={resetClasses}
                         />
                         <span>or press <i>SPACE</i></span>
                     </div>
 
-            } else if (mode === "pause") {
+            } else {
                 currentColonContent =
                     <div className={classesCss.CurrentColumn}>
                         <ResetButton
-                            onResetGame={onResetGame}
+                            onResetGame={game.onResetGame}
                             className={resetClasses}
                         />
                         <Button
-                            onClick={() => onPauseToggle()}
+                            onClick={() => game.onPauseToggle()}
                             className={classesCss.BigButton}
                             valueDefault={faPlay}
                             faIcon={true}
@@ -65,24 +56,24 @@ function MenuLayout(props) {
                     {currentColonContent}
                     <div className={classesCss.SettingColumn}>
                         <SoundRangeSlider
-                            initValue={soundInitValue}
-                            onSoundToggle={onSoundToggle}
-                            soundOn={soundOn}
-                            onChange={onSoundVolumeChange}
+                            initValue={sound.initValue}
+                            onSoundToggle={sound.onSoundToggle}
+                            soundMuted={sound.muted}
+                            onChange={sound.onSoundVolumeChange}
                         />
                         <Button
-                            onClick={() => setMenuState("heroSelect")}
+                            onClick={() => setMenuMode("heroSelect")}
                             className={classesCss.SelectButton}
                             valueDefault={"SELECT HERO"}
                         />
                         <Button
                             style={{fontSize: "15px"}}
-                            onClick={() => setMenuState("locationSelect")}
+                            onClick={() => setMenuMode("locationSelect")}
                             className={classesCss.SelectButton}
                             valueDefault={"SELECT LOCATION"}
                         />
                         <Button
-                            onClick={() => setMenuState("statistic")}
+                            onClick={() => setMenuMode("statistic")}
                             className={classesCss.SelectButton}
                             valueDefault={"STATISTIC"}
                         />
@@ -93,28 +84,24 @@ function MenuLayout(props) {
             menuContent =
                 <PickMenu
                     itemClasses={"hero"}
-                    currentItem={currentHero}
-                    pickItemHandler={heroSelectHandler}
-                    itemSet={heroes}
-                    onBackHandler={() => setMenuState("init")}
+                    itemData={heroData}
+                    onBackHandler={() => setMenuMode("init")}
                     previewType={"card"}
                 />
             break
         case "locationSelect":
             menuContent =
                 <PickMenu
-                    itemClasses={"location"}
-                    currentItem={currentLocation}
-                    pickItemHandler={locationSelectHandler}
-                    itemSet={locationSet}
-                    onBackHandler={() => setMenuState("init")}
+                    itemClasses={["location", classesCss.LocationPickerItem].join(" ")}
+                    itemData={locationData}
+                    onBackHandler={() => setMenuMode("init")}
                     previewType={"full"}
                 />
             break
         case "statistic":
             menuContent =
                 <StatisticMenu
-                    onBack={() => setMenuState("init")}
+                    onBack={() => setMenuMode("init")}
                 />
             break
         default:

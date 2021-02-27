@@ -22,48 +22,9 @@ export const LOCATIONS = [
                         h : 40
                     }
                 },
-            },
-            {
-                name: "soldier2",
-                label: "Soldier 2",
-                sizes : {
-                    default : {
-                        w : 40,
-                        h : 50
-                    },
-                    sit : {
-                        w : 50,
-                        h : 40
-                    }
-                },
-            },
-            {
-                name: "soldier3",
-                label: "Soldier 3",
-                sizes : {
-                    default : {
-                        w : 40,
-                        h : 50
-                    },
-                    sit : {
-                        w : 50,
-                        h : 40
-                    }
-                },
-            },
-            {
-                name: "soldier4",
-                label: "Soldier 4",
-                sizes : {
-                    default : {
-                        w : 40,
-                        h : 50
-                    },
-                    sit : {
-                        w : 50,
-                        h : 40
-                    }
-                },
+                spriteRunPositions: [{x:0,y:0}, {x: 139, y:0}],
+                spriteRunSteps: 3,
+                spriteSitPositions: [{x:140,y:10},{x: 295, y:10}],
             }
         ],
 
@@ -115,6 +76,8 @@ export const LOCATIONS = [
         environment: {
             bottom: 0,
             bgMusic: true,
+            bgNaturalWidth: 785,
+            bgNaturalHeight: 436
         }
     },
 
@@ -123,8 +86,6 @@ export const LOCATIONS = [
     AQUA DISCO
 
      */
-
-
     {
         name: "aquadisco",
         label: "Акводискотека",
@@ -135,14 +96,20 @@ export const LOCATIONS = [
                 label: "Леша Навальный",
                 sizes : {
                     default : {
-                        w : 40,
-                        h : 50
+                        w : 60,
+                        h : 110
                     },
                     sit : {
-                        w : 50,
-                        h : 40
+                        w : 100,
+                        h : 75
                     }
                 },
+                soundHello: true,
+                spriteRunPositions: [{x:0,y:0},{x: 299, y:0}],
+                spriteRunSteps: 4,
+                spriteSitPositions: [{x:0,y:115},{x: 355, y:115}],
+                spriteJumpPosition: {x:385, y: 0},
+                spriteDefaultPosition : {x:310, y: 0}
             }
         ],
 
@@ -169,27 +136,28 @@ export const LOCATIONS = [
             }),
             {
                 type: "monster-1",
-                label: "Голубой монстр",
+                label: "Путин",
                 weight: 0.5,
-                width: 40,
-                height: 46,
+                width: 80,
+                height: 130,
                 altitude: 0,
-                sprite: 'monster-1'
+                sprite: 'putin2.gif',
+                customBgSize: "cover",
+                sizeCorrection: {
+                    top: 0.05,
+                    left: 0.25,
+                    right: 0.25,
+                    bottom: 0,
+                }
             },
-            {
-                type: "monster-2",
-                label: "Желтый монстр",
-                weight: 0.5,
-                width: 45,
-                height: 35,
-                altitude: [10, 60],
-                sprite: 'monster-2'
-            }
         ],
 
         environment: {
             bottom: 0,
             bgMusic: true,
+            bgNaturalWidth: 6935,
+            bgNaturalHeight: 763,
+            bgImage: 'bg-common2.jpg'
         }
     }
 ]

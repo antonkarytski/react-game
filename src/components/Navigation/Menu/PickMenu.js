@@ -9,9 +9,7 @@ export default function PickMenu(props){
         menuClasses,
         itemClasses,
         navigationClasses,
-        itemSet,
-        currentItem,
-        pickItemHandler,
+        itemData,
         onBackHandler,
         previewType,
         children} = props;
@@ -20,7 +18,7 @@ export default function PickMenu(props){
     const menuClassesWrap = [classesCss.PickMenu];
     menuClassesWrap.push(menuClasses)
 
-    const itemClassesWrap = [classesCss.PickItem];
+    const itemClassesWrap = [];
     itemClassesWrap.push(itemClasses)
 
     const navigationClassesWrap = [classesCss.NavigationBlock];
@@ -30,12 +28,12 @@ export default function PickMenu(props){
         <div className={menuClassesWrap.join(" ")}>
             <div className={classesCss.PickWindow}>
                 {
-                    itemSet.map((item, index) => {
+                    itemData.itemSet.map((item, index) => {
                         return(
                             <PickItem
-                                selected = {index === currentItem}
+                                selected = {index === itemData.currentIndex}
                                 className = {itemClassesWrap.join(" ")}
-                                pickItem = {pickItemHandler}
+                                pickItem = {itemData.selectHandler}
                                 label = {item.label}
                                 key = {index}
                                 index = {index}

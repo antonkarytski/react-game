@@ -5,7 +5,7 @@ import {faBars, faTimes} from '@fortawesome/free-solid-svg-icons'
 import Button from "../../components/Navigation/Buttons/Button";
 import SoundButton from "../../components/Navigation/Buttons/SoundButton";
 
-const NavigationLayout = ({loseGame, gameOnPause, onPauseToggle, onSoundToggle, soundOn}) => {
+const NavigationLayout = ({gameState, onPauseToggle, onSoundToggle, soundMuted}) => {
 
     return(
         <>
@@ -16,13 +16,13 @@ const NavigationLayout = ({loseGame, gameOnPause, onPauseToggle, onSoundToggle, 
                 valueDefault = {faTimes}
                 valueToggled = {faBars}
                 faIcon = {true}
-                toggled = {gameOnPause}
-                condition = {!loseGame}
+                toggled = {gameState.pause}
+                condition = {!gameState.lose}
             />
             <SoundButton
                 onSoundToggle = {onSoundToggle}
                 className={[classes.MenuButton, classes.VolumeButton].join(" ")}
-                soundOn = {soundOn}
+                soundMuted = {soundMuted}
             />
         </div>
         </>
