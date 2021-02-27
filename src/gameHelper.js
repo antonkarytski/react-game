@@ -4,7 +4,7 @@ export const SETTINGS = {
     frameWidth: 800,
     frameHeight: 500,
 
-    defaultLocation: 0,
+    defaultLocation: 1,
     pathToAssets : 'assets',
 
     locationSoundFolder : 'sounds',
@@ -78,7 +78,7 @@ class gameHelperClass{
 
     //Prepare All objects for using in app, so when user change location all objects re-preparing
 
-    setLocation(locationName = this.SETTINGS.defaultLocation, message="none"){
+    setLocation(locationName = this.SETTINGS.defaultLocation){
         if(typeof locationName === "string"){
             locationName = this.LOCATIONS.findIndex((location) => {
                 return location.name === locationName
