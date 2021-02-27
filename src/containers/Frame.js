@@ -34,7 +34,7 @@ const Frame = ({settings}) => {
     const savedSoundMuted = Boolean(getSavedNumberVal("soundMuted", 0))
     const savedSoundVolume = getSavedNumberVal("soundVolume", 50)
     const savedHeroIndex = getSavedNumberVal("hero", 0)
-    const savedLocation = getSavedNumberVal("location", 0)
+    const savedLocation = getSavedNumberVal("location", gameHelper.SETTINGS.defaultLocation)
 
 
     const [hero, setHero] = useState({
@@ -76,9 +76,9 @@ const Frame = ({settings}) => {
         }
     }
 
-    function updateScoreSet(){
-
-    }
+    // function updateScoreSet(){
+    //
+    // }
 
     function getSavedNumberVal(val, defaultVal) {
         return Number(localStorage.getItem(val) || defaultVal)
