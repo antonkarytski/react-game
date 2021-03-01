@@ -6,8 +6,6 @@ import MenuLayout from "./Layouts/MenuLayout";
 
 import classesCss from './Frame.module.scss'
 
-import {gameHelper} from "../gameHelper";
-
 import useUnshiftKeyPress from "../hooks/useUnshiftKeyPress";
 
 
@@ -28,25 +26,25 @@ Navigation Layout:
 
  */
 
-const Frame = ({settings}) => {
+const Frame = ({gameHelper, screenRotation}) => {
 
     //Get saved values
     const savedSoundMuted = Boolean(getSavedNumberVal("soundMuted", 0))
     const savedSoundVolume = getSavedNumberVal("soundVolume", 50)
     const savedHeroIndex = getSavedNumberVal("hero", 0)
-    const savedLocation = getSavedNumberVal("location", gameHelper.SETTINGS.defaultLocation)
-
-
-    const [hero, setHero] = useState({
-        item: gameHelper.getHero(savedHeroIndex),
-        index: savedHeroIndex
-    })
+    const savedLocation = getSavedNumberVal("location", gameHelper.settings.defaultLocation)
 
     const [gameState, setGameState] = useState({
         pause: true,
         lose: false,
         set: 1,
         //scoreSet:
+        init: true
+    })
+
+    const [hero, setHero] = useState({
+        item: gameHelper.getHero(savedHeroIndex),
+        index: savedHeroIndex
     })
 
     const [soundState, setSoundState] = useState({
@@ -54,9 +52,12 @@ const Frame = ({settings}) => {
         volume: savedSoundVolume
     })
 
+    if (gameState.init && gameHelper.currenLocationIndex !== savedLocation) {
+        gameHelper.setLocation(savedLocation)
+    }
+
     const [locationData, setLocationData] = useState({
         index: savedLocation,
-        setLocationNotForUse: gameHelper.setLocation(savedLocation),
         heroes: gameHelper.heroes,
         environment: gameHelper.environment,
     })
@@ -76,9 +77,24 @@ const Frame = ({settings}) => {
         }
     }
 
+    // const getFrameSizes = (frameSizes, windowSizes) => {
+    //     const calcFrameSize = {}
+    //     if (windowSizes.w < frameSizes.w) calcFrameSize.w = windowSizes.w
+    //     else calcFrameSize.w = frameSizes.w
+    //     if (windowSizes.w < windowSizes.h) calcFrameSize.h = frameSizes.h
+    //     else if (windowSizes.h < gameHelper.settings.frameHeight) {
+    //         gameHelper.settings.frameHeight = windowSizes.h
+    //         gameHelper.settings.frameBorder = false;
+    //     }
+    // }
+
     // function updateScoreSet(){
     //
     // }
+
+    function updateGameState(newState) {
+        setGameState(Object.assign({}, gameState, newState))
+    }
 
     function getSavedNumberVal(val, defaultVal) {
         return Number(localStorage.getItem(val) || defaultVal)
@@ -110,17 +126,19 @@ const Frame = ({settings}) => {
             localStorage.setItem("bestScore", score + "")
         }
         const scoreHistory = localStorage.getItem("scoreHistory")
-        if(scoreHistory){
+        if (scoreHistory) {
             const scoreHistorySet = scoreHistory.split(",")
-            if(scoreHistorySet.length >= 10) scoreHistorySet.splice(9,1)
-            scoreHistorySet.splice(0,0,score+"");
+            if (scoreHistorySet.length >= 10) scoreHistorySet.splice(9, 1)
+            scoreHistorySet.splice(0, 0, score + "");
             localStorage.setItem("scoreHistory", scoreHistorySet.join(","))
+
         }
 
-        setGameState({
+        updateGameState({
             lose: flag,
             pause: !gameState.pause,
             set: gameState.set,
+            init: false,
         })
 
 
@@ -128,15 +146,14 @@ const Frame = ({settings}) => {
         if (locationData.environment.bgMusic) {
             const bgMusic = getMusic("bg-music")
             if (bgMusic.paused) bgMusic.play();
-
         }
     }
 
     const resetGame = () => {
-        setGameState({
+        updateGameState({
             lose: gameState.lose ? false : gameState.lose,
             pause: false,
-            set: gameState.set + 1
+            set: gameState.set + 1,
         })
     }
 
@@ -155,10 +172,11 @@ const Frame = ({settings}) => {
             environment: gameHelper.getEnvironment()
         })
         heroSelectHandler(0)
-        setGameState({
+        updateGameState({
             lose: gameState.lose,
             pause: gameState.pause,
-            set: gameState.set + 1
+            set: gameState.set + 1,
+            init: false,
         })
     }
 
@@ -206,23 +224,31 @@ const Frame = ({settings}) => {
         }
     }, [])
 
-    const style = {
-        height: settings.frameHeight,
-        width: settings.frameWidth
+    if(screenRotation === 0 || screenRotation === 180){
+        gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameHeight
+        gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameWidth
+    } else{
+        gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameWidth
+        gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameHeight
     }
 
+    const style = {
+        height: gameHelper.settings.frameHeight,
+        width: gameHelper.settings.frameWidth
+    }
+    if (gameHelper.settings.frameBorder) style.border = "1px solid black"
 
     return (
         <div className={classesCss.Wrap} ref={gameFrame}>
-            <div className={classesCss.Border}/>
+            {gameHelper.settings.frameBorder ? <div className={classesCss.Border}/> : null}
             <div className={classesCss.Frame} style={style}>
-                {locationData.environment.bgMusic?
-                <Audio
-                    loop={true}
-                    id={"bg-music"}
-                    src={locationData.environment.bgMusic}
-                />
-                : null}
+                {locationData.environment.bgMusic ?
+                    <Audio
+                        loop={true}
+                        id={"bg-music"}
+                        src={locationData.environment.bgMusic}
+                    />
+                    : null}
                 <GameLayout
                     soundVolume={soundState.volume}
                     soundMuted={soundState.muted}
@@ -230,7 +256,7 @@ const Frame = ({settings}) => {
                     gameOnPause={gameState.pause}
                     onPauseToggle={onPauseToggle}
                     char={hero.item}
-                    settings={settings}
+                    gameHelper={gameHelper}
                     environment={locationData.environment}
                     bestScore={getSavedNumberVal("bestScore", 0)}
                 />
@@ -262,14 +288,14 @@ const Frame = ({settings}) => {
                         }}
 
                         game={{
-                            state : gameState,
-                            onResetGame : resetGame,
+                            state: gameState,
+                            onResetGame: resetGame,
                             onPauseToggle
                         }}
                     />
                     : null}
             </div>
-            <div className={classesCss.Border}/>
+            {gameHelper.settings.frameBorder ? <div className={classesCss.Border}/> : null}
         </div>
     )
 }

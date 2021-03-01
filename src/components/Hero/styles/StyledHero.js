@@ -40,16 +40,13 @@ const StyledHero = styled.div`
   background-repeat: no-repeat;
   position: absolute;
   bottom: 0;
+  z-index: 20;
   -webkit-animation: ${props => animMove(props.spriteRunPositions)} .3s steps(${props => props.spriteRunSteps}) infinite;
   background-position-y: 0;  
 
   ${props => props.jump ? jumpAnimation : null};
   ${props => props.sit ? sitAnimation : null};
     
-
-@keyframes sitMove {
-  
-}
 `
 
 export default StyledHero

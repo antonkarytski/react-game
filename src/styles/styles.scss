@@ -1,6 +1,4 @@
-.app{
-  margin: 50px;
-}
+
 
 .counter{
   font-size: 25px;
@@ -15,4 +13,5 @@ body {
   sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }

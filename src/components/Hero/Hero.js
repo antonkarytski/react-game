@@ -2,8 +2,9 @@ import React, {useEffect, useRef, useState} from 'react'
 import useKeyPress from "../../hooks/useKeyPress";
 import StyledHero from "./styles/StyledHero";
 import Audio from "../Helpres/Audio";
+import useEventListener from "../../hooks/useEventListener";
 
-const Hero = ({item, gameOnPause, soundMuted, soundVolume}) => {
+const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
 
     const [heroState, setHeroState] = useState({
         posX: 0,
@@ -11,6 +12,7 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume}) => {
         size: item.sizes.default
     });
     const [firstLoad, setFirstLoad] = useState(true)
+    const [touchState, setTouchState] = useState('done')
     const heroDom = useRef(null);
 
 
@@ -76,7 +78,6 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume}) => {
                         move: 'run',
                         posX: getNextPos(5)
                     }
-
                     updateHeroState(newHeroState)
                 }
             },
@@ -94,10 +95,10 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume}) => {
     }
 
     const getNextPos = (val) => {
-        if (heroState.posX + val > 550) {
+        if (heroState.posX + val > frameWidth) {
             return 0
         } else if (heroState.posX + val < 0) {
-            return 550
+            return frameWidth
         } else {
             return heroState.posX + val
         }
@@ -135,6 +136,45 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume}) => {
             setFirstLoad(false);
         }
     }, [gameOnPause])
+
+
+    const touchStart = (event) => {
+        setTouchState({y:event.touches[0].clientY, x:event.touches[0].clientX})
+    }
+
+    const touchMove = (event) => {
+        if(touchState !== "done" && heroState.move !== "sit" && touchState.y - event.touches[0].clientY > 100){
+            keyActionsMap.keydown.up()
+            setTouchState("done")
+        } else if(touchState !== "done" && heroState.move !== "sit" && touchState.y - event.touches[0].clientY < -100){
+            keyActionsMap.keydown.down()
+            setTouchState("done")
+        } else if(touchState !== "done"
+            && heroState.move !== "sit"
+            && heroState.move !== "jump"){
+            if(touchState.x - event.touches[0].clientX < -100){
+                keyActionsMap.keydown.right()
+            } else if(touchState.x - event.touches[0].clientX > 100){
+                keyActionsMap.keydown.left()
+            }
+        }
+
+
+
+    }
+
+    const touchEnd = () => {
+        if(heroState.move === "sit"){
+            keyActionsMap.keyup.down()
+        } else if(heroState.move === "run"){
+            updateHeroState({move: 'stand'})
+        }
+    }
+
+    useEventListener(touchStart,"touchstart")
+    useEventListener(touchMove,"touchmove")
+    useEventListener(touchEnd,"touchend")
+
 
     const soundArray = []
     for(let sound in soundMap){

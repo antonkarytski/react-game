@@ -5,6 +5,7 @@ export default styled.div`
   position: absolute;
   animation: move ${props => ((3 - Math.log(props.speed)/Math.log(50))*props.frameWidth/600).toFixed(2)}s linear;
   left: -100px;
+  z-index: 19;
   
   @keyframes move {
   0%{

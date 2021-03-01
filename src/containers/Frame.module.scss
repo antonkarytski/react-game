@@ -1,7 +1,7 @@
 .Frame{
   position: relative;
-  border: 1px solid black;
   z-index: 2;
+  overflow-x: hidden;
 }
 
 .Border{
@@ -15,4 +15,7 @@
   display:flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow-x: hidden;
 }

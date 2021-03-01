@@ -1,64 +1,4 @@
-import {LOCATIONS} from "./characters";
-
-export const SETTINGS = {
-    frameWidth: 800,
-    frameHeight: 500,
-
-    defaultLocation: 1,
-    pathToAssets : 'assets',
-
-    locationSoundFolder : 'sounds',
-    defaultLocationPreview : 'preview.jpg',
-    defaultLocationBgSound : 'bgmusic.mp3',
-    defaultLocationBgImage : "bg-common.jpg",
-    locationPrototype: {
-        bottom: 0,
-        bgImage: true,
-        bgMusic: false
-    },
-
-    obstacleFolder: 'obstacles',
-    defaultObstacleSprite: 'sprite.png',
-    obstaclesPrototype : {
-        weight: 1,
-        width: 30,
-        height: 30,
-        altitude: 0,
-        sprite: true,
-        display: true,
-        position: 0,
-        customBgSize: false,
-        sizeCorrection: 0,
-    },
-
-    heroFolder: 'chars',
-    defaultHeroSprite: 'sprite.png',
-    defaultHeroProps: {
-        preview: 'preview.png',
-        soundHello: 'hello.mp3',
-        soundJump: 'jump.mp3'
-    },
-    heroPrototype : {
-        sizes : {
-            default : {
-                w : 40,
-                h : 50
-            },
-            sit : {
-                w : 50,
-                h : 30
-            }
-        },
-        preview: true,
-        soundHello : false,
-        soundJump : false,
-        spriteRunPositions: [{x: 0, y: 0},{x: 299, y: 0}],
-        spriteRunSteps: 3
-    },
-}
-
-
-class gameHelperClass{
+export default class gameHelperClass{
 
     currentLocation;
     locationSet;
@@ -69,24 +9,56 @@ class gameHelperClass{
     environment;
     pathToLocation;
 
-    constructor(settings= SETTINGS, locations = LOCATIONS){
-        this.SETTINGS = settings
-        this.LOCATIONS = locations
+    constructor(settings, locations){
+        this.settings = Object.assign({},settings)
+        this.locations = Object.assign({},locations)
+
+        const currentScreenRotation = window.screen.orientation.angle
+
+        if(currentScreenRotation === 0 || currentScreenRotation === 180){
+            if (window.innerWidth < settings.defaultFrameWidth){
+                this.settings.defaultFrameWidth = window.innerWidth
+                this.settings.defaultFrameBorder = false
+            }
+            if(window.innerHeight > window.innerWidth || window.innerHeight < settings.defaultFrameHeight){
+                this.settings.defaultFrameHeight = window.innerHeight
+                this.settings.defaultFrameBorder = false
+            }
+            this.settings.frameWidth = settings.defaultFrameWidth;
+            this.settings.frameHeight = settings.defaultFrameHeight;
+
+        } else if(currentScreenRotation === 90 || currentScreenRotation === 270) {
+            if (window.innerWidth < settings.defaultFrameWidth){
+                this.settings.defaultFrameHeight = window.innerWidth
+                this.settings.defaultFrameBorder = false
+
+            }
+            if(window.innerHeight > window.innerWidth || window.innerHeight < settings.defaultFrameHeight){
+                this.settings.defaultFrameWidth = window.innerHeight
+                this.settings.defaultFrameBorder = false
+            }
+            this.settings.frameWidth = settings.defaultFrameHeight;
+            this.settings.frameHeight = settings.defaultFrameWidth;
+
+        }
+        console.log(this.settings)
+
+        this.settings.frameBorder = this.settings.defaultFrameBorder;
         this.locationSet = this.prepareLocationSet(locations)
         this.currentLocation = this.setLocation(settings.defaultLocation)
     }
 
     //Prepare All objects for using in app, so when user change location all objects re-preparing
 
-    setLocation(locationName = this.SETTINGS.defaultLocation){
+    setLocation(locationName = this.settings.defaultLocation || 0){
         if(typeof locationName === "string"){
-            locationName = this.LOCATIONS.findIndex((location) => {
+            locationName = this.locations.findIndex((location) => {
                 return location.name === locationName
             })
         }
-        this.currentLocation = this.LOCATIONS[locationName];
+        this.currentLocation = this.locations[locationName];
         this.currenLocationIndex = locationName
-        this.pathToLocation = this.SETTINGS.pathToAssets + "/" + this.currentLocation.name
+        this.pathToLocation = this.settings.pathToAssets + "/" + this.currentLocation.name
         this.obstacleWeights = this.setWeights(this.currentLocation.obstacles)
         this.obstacles = this.prepareObstacleSet(this.currentLocation.obstacles)
         this.heroMap = this.createHeroMap(this.currentLocation.heroes)
@@ -112,24 +84,23 @@ class gameHelperClass{
         return map;
     }
 
-    prepareLocationSet(locations = LOCATIONS){
+    prepareLocationSet(locations = this.locations){
         return locations.map((location) => {
-            const previewFile = location.preview || this.SETTINGS.defaultLocationPreview
+            const previewFile = location.preview || this.settings.defaultLocationPreview
             return {
                 name : location.name,
-                preview : `${this.SETTINGS.pathToAssets}/${location.name}/${previewFile}`
+                preview : `${this.settings.pathToAssets}/${location.name}/${previewFile}`
             }
         })
     }
 
     prepareObstacleSet(unpreparedObstacleSet = this.currentLocation.obstacles){
-
         return unpreparedObstacleSet.map((obstacle) => {
-            const preparedObstacle = Object.assign({},this.SETTINGS.obstaclesPrototype, obstacle)
+            const preparedObstacle = Object.assign({},this.settings.obstaclesPrototype, obstacle)
             if(preparedObstacle.sprite){
-                const obstacleSpriteFile = typeof obstacle.sprite === "string"? obstacle.sprite : this.SETTINGS.defaultObstacleSprite
+                const obstacleSpriteFile = typeof obstacle.sprite === "string"? obstacle.sprite : this.settings.defaultObstacleSprite
 
-                const spritePath = `${this.SETTINGS.obstacleFolder}/${obstacle.type}/${obstacleSpriteFile}`
+                const spritePath = `${this.settings.obstacleFolder}/${obstacle.type}/${obstacleSpriteFile}`
                 preparedObstacle.sprite = `${this.pathToLocation}/${spritePath}`
 
             }
@@ -138,18 +109,18 @@ class gameHelperClass{
     }
 
     prepareHeroSet(unpreparedHeroSet){
-        const heroPrototype = this.SETTINGS.heroPrototype
-        const pathToCharsFolder = `${this.pathToLocation}/${this.SETTINGS.heroFolder}/`
+        const heroPrototype = this.settings.heroPrototype
+        const pathToCharsFolder = `${this.pathToLocation}/${this.settings.heroFolder}/`
 
         return unpreparedHeroSet.map((hero) => {
             const pathToHeroFolder = pathToCharsFolder + hero.name
             const preparedHero = Object.assign({}, heroPrototype, hero)
-            preparedHero.sprite = `${pathToHeroFolder}/${hero.sprite || this.SETTINGS.defaultHeroSprite}`
+            preparedHero.sprite = `${pathToHeroFolder}/${hero.sprite || this.settings.defaultHeroSprite}`
 
-            for(let attr in this.SETTINGS.defaultHeroProps){
+            for(let attr in this.settings.defaultHeroProps){
                 if(preparedHero[attr]){
                     const attrPath = typeof preparedHero[attr] === "string"?
-                        preparedHero[attr] : this.SETTINGS.defaultHeroProps[attr]
+                        preparedHero[attr] : this.settings.defaultHeroProps[attr]
 
                     preparedHero[attr] = `${pathToHeroFolder}/${attrPath}`;
                 }
@@ -160,11 +131,11 @@ class gameHelperClass{
     }
 
     getHeroSet(locationIndex){
-        return this.prepareHeroSet(this.LOCATIONS[locationIndex].heroes);
+        return this.prepareHeroSet(this.locations[locationIndex].heroes);
     }
 
     prepareEnvironment(unpreparedEnv){
-        const settings = this.SETTINGS;
+        const settings = this.settings;
         const preparedEnv = Object.assign({}, settings.locationPrototype, unpreparedEnv);
 
         const bgFile = typeof preparedEnv.bgImage === "string"? preparedEnv.bgImage : settings.defaultLocationBgImage
@@ -208,10 +179,8 @@ class gameHelperClass{
 
     getEnvironment(locationIndex){
         if(locationIndex){
-            return this.prepareEnvironment(this.LOCATIONS[locationIndex].environment)
+            return this.prepareEnvironment(this.locations[locationIndex].environment)
         }
         return this.environment;
     }
 }
-
-export const gameHelper = new gameHelperClass();
