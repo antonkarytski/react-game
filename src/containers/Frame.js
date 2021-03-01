@@ -52,6 +52,8 @@ const Frame = ({gameHelper, screenRotation}) => {
         volume: savedSoundVolume
     })
 
+    const [frameSize, setFrameSize] = useState(getFrameSize(gameHelper))
+
     if (gameState.init && gameHelper.currenLocationIndex !== savedLocation) {
         gameHelper.setLocation(savedLocation)
     }
@@ -77,21 +79,6 @@ const Frame = ({gameHelper, screenRotation}) => {
         }
     }
 
-    // const getFrameSizes = (frameSizes, windowSizes) => {
-    //     const calcFrameSize = {}
-    //     if (windowSizes.w < frameSizes.w) calcFrameSize.w = windowSizes.w
-    //     else calcFrameSize.w = frameSizes.w
-    //     if (windowSizes.w < windowSizes.h) calcFrameSize.h = frameSizes.h
-    //     else if (windowSizes.h < gameHelper.settings.frameHeight) {
-    //         gameHelper.settings.frameHeight = windowSizes.h
-    //         gameHelper.settings.frameBorder = false;
-    //     }
-    // }
-
-    // function updateScoreSet(){
-    //
-    // }
-
     function updateGameState(newState) {
         setGameState(Object.assign({}, gameState, newState))
     }
@@ -102,6 +89,28 @@ const Frame = ({gameHelper, screenRotation}) => {
 
     function getMusic(selector) {
         return gameFrame.current.querySelector(`audio#${selector}`)
+    }
+
+    function getFrameSize(gameHelper) => {
+        const newFrameSize = {}
+        if (window.innerWidth < gameHelper.settings.defaultFrameWidth){
+            gameHelper.settings.frameWidth = window.innerWidth
+            gameHelper.settings.frameBorder = false
+            console.log(window.innerWidth)
+        } else {
+            gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameWidth
+        }
+        if(window.innerHeight > window.innerWidth || window.innerHeight < gameHelper.settings.defaultFrameHeight){
+            gameHelper.settings.frameHeight = window.innerHeight
+            gameHelper.settings.frameBorder = false
+        } else {
+            gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameWidth
+        }
+        newFrameSize.w =  gameHelper.settings.frameWidth;
+        newFrameSize.h =  gameHelper.settings.frameHeight;
+        newFrameSize.b =  gameHelper.settings.frameBorder;
+
+        return newFrameSize
     }
 
     const onSoundVolumeChange = (soundVolume) => {
@@ -222,22 +231,21 @@ const Frame = ({gameHelper, screenRotation}) => {
             bgMusic.muted = soundState.muted;
             bgMusic.volume = soundState.volume / 100 * 0.7;
         }
+        setFrameSize(updateFrameSize())
     }, [])
 
-    if(screenRotation === 0 || screenRotation === 180){
-        gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameHeight
-        gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameWidth
-    } else{
-        gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameWidth
-        gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameHeight
-    }
+    useEffect(() => {
+        setFrameSize(updateFrameSize())
+    }, [screenRotation])
 
     const style = {
-        height: gameHelper.settings.frameHeight,
-        width: gameHelper.settings.frameWidth
+        height: frameSize.h,
+        width: frameSize.w
     }
     if (gameHelper.settings.frameBorder) style.border = "1px solid black"
 
+
+    console.log(frameSize)
     return (
         <div className={classesCss.Wrap} ref={gameFrame}>
             {gameHelper.settings.frameBorder ? <div className={classesCss.Border}/> : null}
