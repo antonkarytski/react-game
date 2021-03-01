@@ -10,10 +10,15 @@ const gameHelper = new gameHelperClass(SETTINGS, LOCATIONS)
 
 const App = () => {
 
-    const [screenRotation, setScreenRotation] = useState(window.screen.orientation.angle);
+    const [screenRotation, setScreenRotation] = useState(
+        window.screen?.orientation?.angle
+        ?? window.orientation);
 
-    const updateScreenRotation = (event) => {
-        setScreenRotation(event.target.screen.orientation.angle)
+
+    const updateScreenRotation = () => {
+        setScreenRotation(
+            window.screen?.orientation?.angle
+            ?? window.orientation)
     }
 
     useEffect(() => {

@@ -230,6 +230,7 @@ const Frame = ({gameHelper, screenRotation}) => {
     } else{
         gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameWidth
         gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameHeight
+
     }
 
     const style = {
