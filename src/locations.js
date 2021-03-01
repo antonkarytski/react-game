@@ -109,7 +109,13 @@ export const LOCATIONS = [
                 spriteRunSteps: 4,
                 spriteSitPositions: [{x:0,y:115},{x: 355, y:115}],
                 spriteJumpPosition: {x:385, y: 0},
-                spriteDefaultPosition : {x:310, y: 0}
+                spriteDefaultPosition : {x:310, y: 0},
+                sizeCorrection: {
+                    top: 0,
+                    left: 0.15,
+                    right: 0,
+                    bottom: 0.2,
+                },
             }
         ],
 
@@ -148,7 +154,9 @@ export const LOCATIONS = [
                     left: 0.25,
                     right: 0.25,
                     bottom: 0,
-                }
+                },
+                randomWidth: 1.1,
+                randomHeight: 0.5
             },
         ],
 
@@ -157,7 +165,8 @@ export const LOCATIONS = [
             bgMusic: true,
             bgNaturalWidth: 6935,
             bgNaturalHeight: 763,
-            bgImage: 'bg-common2.jpg'
+            bgImage: 'bg-common2.jpg',
+            effects: "disco"
         }
     }
 ]

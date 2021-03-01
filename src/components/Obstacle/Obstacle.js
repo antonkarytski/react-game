@@ -15,7 +15,8 @@ const Obstacle = ({item, index, className, gameOnPause, frameWidth}) => {
         width: `${width}px`,
         height: `${height}px`,
         bottom: altitude || 0,
-        backgroundSize: item.customBgSize || 'contain',
+        //backgroundSize: item.customBgSize || 'contain',
+        backgroundSize: `${width}px ${height}px`,
     }
 
     if(sprite) {styles.backgroundImage = `url(${process.env.PUBLIC_URL +"/"+sprite})`;}

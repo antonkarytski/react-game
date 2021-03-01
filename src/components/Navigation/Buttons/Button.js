@@ -14,7 +14,7 @@ import classesCss from "./Buttons.module.scss";
 function Button(props) {
 
     const {
-        condition,
+        condition, //condition under which onClick will work
         valueDefault,
         valueToggled,
         className,

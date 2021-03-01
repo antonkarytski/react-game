@@ -18,8 +18,8 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
 
     //redundant
     const soundMap = {
-        soundJump : "jump-music",
-        soundHello : "hello-music"
+        soundJump: "jump-music",
+        soundHello: "hello-music"
     }
 
     const keyActionsMap = {
@@ -84,12 +84,49 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
         }
     }
 
+    const touchActionsMap = {
+        touchStart: (event) => {
+            if (!gameOnPause) {
+                setTouchState({y: event.touches[0].clientY, x: event.touches[0].clientX})
+            }
+
+        },
+
+        touchMove: (event) => {
+            if (!gameOnPause && touchState !== "done") {
+                if (heroState.move !== "sit" && touchState.y - event.touches[0].clientY > 100) {
+                    keyActionsMap.keydown.up()
+                    setTouchState("done")
+                } else if (heroState.move !== "sit" && touchState.y - event.touches[0].clientY < -100) {
+                    keyActionsMap.keydown.down()
+                    setTouchState("done")
+                } else if (heroState.move !== "sit" && heroState.move !== "jump") {
+                    if (touchState.x - event.touches[0].clientX < -100) {
+                        keyActionsMap.keydown.right()
+                    } else if (touchState.x - event.touches[0].clientX > 100) {
+                        keyActionsMap.keydown.left()
+                    }
+                }
+            }
+        },
+
+        touchEnd: () => {
+            if (!gameOnPause) {
+                if (heroState.move === "sit") {
+                    keyActionsMap.keyup.down()
+                } else if (heroState.move === "run") {
+                    updateHeroState({move: 'stand'})
+                }
+            }
+        }
+    }
+
     const updateHeroState = (state) => {
         setHeroState(Object.assign({}, heroState, state));
     }
 
     const playSound = (sound) => {
-        if(item[sound]){
+        if (item[sound]) {
             heroDom.current.querySelector(`audio#${soundMap[sound]}`).play();
         }
     }
@@ -106,23 +143,26 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
 
     useKeyPress(keyActionsMap.keydown, "keydown", !gameOnPause)
     useKeyPress(keyActionsMap.keyup, "keyup")
+    useEventListener(touchActionsMap.touchStart, "touchstart")
+    useEventListener(touchActionsMap.touchMove, "touchmove")
+    useEventListener(touchActionsMap.touchEnd, "touchend")
 
     useEffect(() => {
-        for(let sound in soundMap){
-            if(item[sound]){
+        for (let sound in soundMap) {
+            if (item[sound]) {
                 const soundEffect = heroDom.current.querySelector(`audio#${soundMap[sound]}`);
                 soundEffect.muted = soundMuted;
                 soundEffect.volume = soundVolume / 100;
             }
         }
-    }, [soundMuted,soundVolume])
+    }, [soundMuted, soundVolume])
 
     useEffect(() => {
         updateHeroState({
             size: item.sizes.default
         })
-        for(let sound in soundMap){
-            if(item[sound]){
+        for (let sound in soundMap) {
+            if (item[sound]) {
                 const soundEffect = heroDom.current.querySelector(`audio#${soundMap[sound]}`);
                 soundEffect.muted = soundMuted;
                 soundEffect.volume = soundVolume / 100;
@@ -131,57 +171,18 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
     }, [item])
 
     useEffect(() => {
-        if(!gameOnPause && firstLoad){
+        if (!gameOnPause && firstLoad) {
             playSound("soundHello");
             setFirstLoad(false);
         }
     }, [gameOnPause])
 
-
-    const touchStart = (event) => {
-        setTouchState({y:event.touches[0].clientY, x:event.touches[0].clientX})
-    }
-
-    const touchMove = (event) => {
-        if(touchState !== "done" && heroState.move !== "sit" && touchState.y - event.touches[0].clientY > 100){
-            keyActionsMap.keydown.up()
-            setTouchState("done")
-        } else if(touchState !== "done" && heroState.move !== "sit" && touchState.y - event.touches[0].clientY < -100){
-            keyActionsMap.keydown.down()
-            setTouchState("done")
-        } else if(touchState !== "done"
-            && heroState.move !== "sit"
-            && heroState.move !== "jump"){
-            if(touchState.x - event.touches[0].clientX < -100){
-                keyActionsMap.keydown.right()
-            } else if(touchState.x - event.touches[0].clientX > 100){
-                keyActionsMap.keydown.left()
-            }
-        }
-
-
-
-    }
-
-    const touchEnd = () => {
-        if(heroState.move === "sit"){
-            keyActionsMap.keyup.down()
-        } else if(heroState.move === "run"){
-            updateHeroState({move: 'stand'})
-        }
-    }
-
-    useEventListener(touchStart,"touchstart")
-    useEventListener(touchMove,"touchmove")
-    useEventListener(touchEnd,"touchend")
-
-
     const soundArray = []
-    for(let sound in soundMap){
-        if(item[sound]){
+    for (let sound in soundMap) {
+        if (item[sound]) {
             soundArray.push({
-                id : soundMap[sound],
-                src : item[sound]
+                id: soundMap[sound],
+                src: item[sound]
             })
         }
     }
@@ -193,13 +194,11 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
         width: `${heroState.size.w}px`
     }
 
-    if(heroState.move === 'jump' && item.spriteJumpPosition){
+    if (heroState.move === 'jump' && item.spriteJumpPosition) {
         styles.backgroundPosition = `-${item.spriteJumpPosition.x}px -${item.spriteJumpPosition.y}px`
     }
 
-    if (gameOnPause) {
-        styles.animationPlayState = 'paused';
-    }
+    if (gameOnPause) styles.animationPlayState = 'paused';
 
     return (
         <StyledHero
@@ -209,13 +208,13 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
             jump={heroState.move === 'jump'}
             sit={heroState.move === 'sit'}
             spriteRunPositions={item.spriteRunPositions}
-            spriteRunSteps = {item.spriteRunSteps}
+            spriteRunSteps={item.spriteRunSteps}
             spriteSitPositions={item.spriteSitPositions}
             heroSizes={item.sizes}
         >
             {
                 soundArray.map((sound, index) => {
-                    return(
+                    return (
                         <Audio
                             key={sound.id + index}
                             id={sound.id}

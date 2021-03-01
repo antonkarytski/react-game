@@ -5,7 +5,8 @@ import Button from "../../components/Navigation/Buttons/Button";
 import ResetButton from "../../components/Navigation/Buttons/ResetButton";
 import SoundRangeSlider from "../../components/Navigation/RangeSlider/SoundRangeSlider";
 import StatisticMenu from "../../components/Navigation/Menu/StatisticMenu"
-import PickMenu from "../../components/Navigation/Menu/PickMenu";
+import PickMenu from "../../components/Navigation/Menu/PickMenu/PickMenu";
+import InfoLayout from "./InfoLayout";
 import {faPlay} from '@fortawesome/free-solid-svg-icons';
 
 function MenuLayout(props) {
@@ -14,7 +15,9 @@ function MenuLayout(props) {
         game,
         locationData,
         heroData,
-        sound} = props
+        sound,
+        statistic
+    } = props
 
     const [menuMode, setMenuMode] = useState('init') //init, start, heroSelect, locationSelect, lose, pause
 
@@ -25,60 +28,66 @@ function MenuLayout(props) {
 
     switch (menuMode) {
         case "init":
-            if (game.state.lose) {
-                currentColonContent =
-                    <div className={[classesCss.CurrentColumn, classesCss.LoseMessage].join(' ')}>
-                        <h2>YOU LOSE</h2>
-                        <ResetButton
-                            onResetGame={game.onResetGame}
-                            className={resetClasses}
-                        />
-                        <span>or press <i>SPACE</i></span>
-                    </div>
-
+            if (game.state.infoMenuOpened) {
+                menuContent =
+                    <InfoLayout />
             } else {
-                currentColonContent =
-                    <div className={classesCss.CurrentColumn}>
-                        <ResetButton
-                            onResetGame={game.onResetGame}
-                            className={resetClasses}
-                        />
-                        <Button
-                            onClick={() => game.onPauseToggle()}
-                            className={classesCss.BigButton}
-                            valueDefault={faPlay}
-                            faIcon={true}
-                        />
+                if (game.state.lose) {
+                    currentColonContent =
+                        <div className={[classesCss.CurrentColumn, classesCss.LoseMessage].join(' ')}>
+                            <h2>YOU LOSE</h2>
+                            <ResetButton
+                                onResetGame={game.onResetGame}
+                                className={resetClasses}
+                            />
+                            <span>or press <i>SPACE</i></span>
+                        </div>
+
+                } else {
+                    currentColonContent =
+                        <div className={classesCss.CurrentColumn}>
+                            <ResetButton
+                                onResetGame={game.onResetGame}
+                                className={resetClasses}
+                            />
+                            <Button
+                                onClick={() => game.onPauseToggle()}
+                                className={classesCss.BigButton}
+                                valueDefault={faPlay}
+                                faIcon={true}
+                            />
+                        </div>
+                }
+                menuContent =
+                    <div className={classesCss.MenuContent}>
+                        {currentColonContent}
+                        <div className={classesCss.SettingColumn}>
+                            <SoundRangeSlider
+                                initValue={sound.initValue}
+                                onSoundToggle={sound.onSoundToggle}
+                                soundMuted={sound.muted}
+                                onChange={sound.onSoundVolumeChange}
+                            />
+                            <Button
+                                onClick={() => setMenuMode("heroSelect")}
+                                className={classesCss.SelectButton}
+                                valueDefault={"SELECT HERO"}
+                            />
+                            <Button
+                                style={{fontSize: "15px"}}
+                                onClick={() => setMenuMode("locationSelect")}
+                                className={classesCss.SelectButton}
+                                valueDefault={"SELECT LOCATION"}
+                            />
+                            <Button
+                                onClick={() => setMenuMode("statistic")}
+                                className={classesCss.SelectButton}
+                                valueDefault={"STATISTIC"}
+                            />
+                        </div>
                     </div>
             }
-            menuContent =
-                <div className={classesCss.MenuContent}>
-                    {currentColonContent}
-                    <div className={classesCss.SettingColumn}>
-                        <SoundRangeSlider
-                            initValue={sound.initValue}
-                            onSoundToggle={sound.onSoundToggle}
-                            soundMuted={sound.muted}
-                            onChange={sound.onSoundVolumeChange}
-                        />
-                        <Button
-                            onClick={() => setMenuMode("heroSelect")}
-                            className={classesCss.SelectButton}
-                            valueDefault={"SELECT HERO"}
-                        />
-                        <Button
-                            style={{fontSize: "15px"}}
-                            onClick={() => setMenuMode("locationSelect")}
-                            className={classesCss.SelectButton}
-                            valueDefault={"SELECT LOCATION"}
-                        />
-                        <Button
-                            onClick={() => setMenuMode("statistic")}
-                            className={classesCss.SelectButton}
-                            valueDefault={"STATISTIC"}
-                        />
-                    </div>
-                </div>
+
             break
         case "heroSelect":
             menuContent =
@@ -101,7 +110,15 @@ function MenuLayout(props) {
         case "statistic":
             menuContent =
                 <StatisticMenu
-                    onBack={() => setMenuMode("init")}
+                    statistic={statistic}
+                    onBackHandler={() => setMenuMode("init")}
+                />
+            break
+        case "info":
+            menuContent =
+                <StatisticMenu
+                    statistic={statistic}
+                    onBackHandler={() => setMenuMode("init")}
                 />
             break
         default:

@@ -81,7 +81,12 @@ const GameLayout = (props) => {
         const obstaclesToAdd = [...obstaclesState.obstacles];
         const newObstacle = gameHelper.getRandomObstacle()
         newObstacle.position = gameHelper.settings.frameWidth // set start position
-        newObstacle.speed = Math.floor(gameTime / 2000) + 1
+        newObstacle.speed = Math.floor(gameTime / 1000) + 1;
+        console.log(newObstacle)
+        if(newObstacle.randomHeight)
+            newObstacle.height = newObstacle.height - newObstacle.height * Math.random() * newObstacle.randomHeight
+        if(newObstacle.randomWidth)
+            newObstacle.width = newObstacle.width + newObstacle.width * Math.random() * newObstacle.randomWidth
         obstaclesToAdd[obstaclesState.nextObstacle] = newObstacle;
         setObstaclesState({
             obstacles: obstaclesToAdd,
@@ -100,16 +105,17 @@ const GameLayout = (props) => {
                 const heroDom = selfRef.current.querySelector('#hero')
                 const obstacleRelPosition = getRelPosition(obstacleDom.getBoundingClientRect());
 
-                if (obstacleRelPosition.left <= -40) {
+                if (obstacleRelPosition.left <= -65) {
                     obstacle.display = false;
                 } else {
+
                     const heroRelPosition = getRelPosition(heroDom.getBoundingClientRect());
-                    const heroSizeCorrection = prepareCorrection()
+                    const heroSizeCorrection = prepareCorrection(char.sizeCorrection,
+                        {w: char.sizes.default.w, h: char.sizes.default.h})
                     const obstacleSizeCorrection = prepareCorrection(obstacle.sizeCorrection,
                         {w: obstacle.width, h: obstacle.height})
-
                     if (checkCollision(heroRelPosition, obstacleRelPosition, [heroSizeCorrection, obstacleSizeCorrection])) {
-                        onPauseToggle(true, gameTime + step)
+                        onPauseToggle("lose", gameTime + step)
                     }
                     obstacle.position = obstacleRelPosition.left;
                 }
@@ -123,6 +129,9 @@ const GameLayout = (props) => {
         setGameTime(gameTime + step)
     }, step, !gameOnPause, obstaclesState, gameOnPause)
 
+
+
+
     let relatedWidth = gameHelper.settings.frameHeight / environment.bgNaturalHeight * environment.bgNaturalWidth;
     if (relatedWidth < gameHelper.settings.frameWidth) {
         relatedWidth = gameHelper.settings.frameWidth
@@ -132,7 +141,21 @@ const GameLayout = (props) => {
     const selfStyle = {
         backgroundImage: `url(${process.env.PUBLIC_URL + "/" + environment.bgImage})`,
     }
-    if (gameOnPause) selfStyle.animationPlayState = "paused";
+    const effectStyle = {}
+    if (gameOnPause) {
+        selfStyle.animationPlayState = "paused";
+        effectStyle.animationPlayState = "paused";
+    }
+
+    let gameEffects = null
+    switch(environment.effects){
+        case "disco":
+            gameEffects =
+                <StyledLayer className={classes.FilterLayout} style={effectStyle}/>
+            break
+        default: gameEffects = null
+            break
+    }
 
     return (
         <StyledGame
@@ -173,7 +196,9 @@ const GameLayout = (props) => {
                     return null
                 })
             }
-            <StyledLayer className={classes.FilterLayout}/>
+            {gameEffects}
+
+
         </StyledGame>
     )
 }

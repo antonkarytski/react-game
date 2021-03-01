@@ -14,7 +14,8 @@ export const SETTINGS = {
     locationPrototype: {
         bottom: 0,
         bgImage: true,
-        bgMusic: false
+        bgMusic: false,
+        effects: false
     },
 
     obstacleFolder: 'obstacles',
@@ -29,6 +30,8 @@ export const SETTINGS = {
         position: 0,
         customBgSize: false,
         sizeCorrection: 0,
+        randomWidth: 0,
+        randomHeight: 0
     },
 
     heroFolder: 'chars',
@@ -53,6 +56,6 @@ export const SETTINGS = {
         soundHello : false,
         soundJump : false,
         spriteRunPositions: [{x: 0, y: 0},{x: 299, y: 0}],
-        spriteRunSteps: 3
+        spriteRunSteps: 3,
     },
 }

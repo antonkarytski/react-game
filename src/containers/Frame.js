@@ -28,18 +28,25 @@ Navigation Layout:
 
 const Frame = ({gameHelper, screenRotation}) => {
 
-    //Get saved values
+    //
+    //Init save in local storage values
+    //
+
     const savedSoundMuted = Boolean(getSavedNumberVal("soundMuted", 0))
     const savedSoundVolume = getSavedNumberVal("soundVolume", 50)
     const savedHeroIndex = getSavedNumberVal("hero", 0)
     const savedLocation = getSavedNumberVal("location", gameHelper.settings.defaultLocation)
 
+    //
+    //Init hooks vars
+    //
+
     const [gameState, setGameState] = useState({
         pause: true,
         lose: false,
         set: 1,
-        //scoreSet:
-        init: true
+        init: true,
+        infoMenuOpened: false
     })
 
     const [hero, setHero] = useState({
@@ -62,35 +69,36 @@ const Frame = ({gameHelper, screenRotation}) => {
         environment: gameHelper.environment,
     })
 
+    const [fullScreenState, setFullScreenState] = useState(false)
+
     const gameFrame = useRef(null)
 
     const keyActionsMap = {
         SPACE: () => {
             if (!gameState.lose) {
-                onPauseToggle()
+                pauseToggleHandler()
             } else {
                 resetGame()
             }
         },
         m: () => {
-            onSoundToggle()
+            soundMutedToggleHandler()
         }
     }
 
-    // const getFrameSizes = (frameSizes, windowSizes) => {
-    //     const calcFrameSize = {}
-    //     if (windowSizes.w < frameSizes.w) calcFrameSize.w = windowSizes.w
-    //     else calcFrameSize.w = frameSizes.w
-    //     if (windowSizes.w < windowSizes.h) calcFrameSize.h = frameSizes.h
-    //     else if (windowSizes.h < gameHelper.settings.frameHeight) {
-    //         gameHelper.settings.frameHeight = windowSizes.h
-    //         gameHelper.settings.frameBorder = false;
-    //     }
-    // }
-
-    // function updateScoreSet(){
     //
-    // }
+    //Handlers
+    //
+
+    function includeScoreSet(currentScoreString, score){
+        if (currentScoreString) {
+            const scoreHistorySet = currentScoreString.split(",")
+            if (scoreHistorySet.length >= 10) scoreHistorySet.splice(9, 1)
+            scoreHistorySet.splice(0, 0, score + "");
+            return scoreHistorySet.join(",")
+        }
+        return score + ""
+    }
 
     function updateGameState(newState) {
         setGameState(Object.assign({}, gameState, newState))
@@ -104,15 +112,14 @@ const Frame = ({gameHelper, screenRotation}) => {
         return gameFrame.current.querySelector(`audio#${selector}`)
     }
 
-    const onSoundVolumeChange = (soundVolume) => {
+    const soundVolumeChangeHandler = (soundVolume) => {
         setSoundState({
             volume: soundVolume,
             muted: soundVolume <= 0
         })
     }
 
-
-    const onSoundToggle = () => {
+    const soundMutedToggleHandler = () => {
         setSoundState({
             //if turn on sound when volume = 0, set volume = 10(0.1)
             volume: soundState.muted && soundState.volume <= 0 ? 10 : soundState.volume,
@@ -120,42 +127,33 @@ const Frame = ({gameHelper, screenRotation}) => {
         })
     }
 
-    const onPauseToggle = (flag = false, score = 0) => {
+    const pauseToggleHandler = (flag = false, score = 0) => {
 
         if (score > getSavedNumberVal("bestScore", 0)) {
             localStorage.setItem("bestScore", score + "")
         }
-        const scoreHistory = localStorage.getItem("scoreHistory")
-        if (scoreHistory) {
-            const scoreHistorySet = scoreHistory.split(",")
-            if (scoreHistorySet.length >= 10) scoreHistorySet.splice(9, 1)
-            scoreHistorySet.splice(0, 0, score + "");
-            localStorage.setItem("scoreHistory", scoreHistorySet.join(","))
 
+        if(flag === "lose"){
+            const newScoreString = includeScoreSet(localStorage.getItem("scoreHistory"), score)
+            localStorage.setItem("scoreHistory", newScoreString)
         }
 
         updateGameState({
-            lose: flag,
+            lose: flag === "lose",
             pause: !gameState.pause,
             set: gameState.set,
             init: false,
+            infoMenuOpened: false
         })
 
-
-        //Call here cause user have to do some action before music starts, so music starts after user press key for game start
+        //Call here cause user have to do some action before music starts, so music starts
+        // after user press key for game start
         if (locationData.environment.bgMusic) {
             const bgMusic = getMusic("bg-music")
             if (bgMusic.paused) bgMusic.play();
         }
     }
 
-    const resetGame = () => {
-        updateGameState({
-            lose: gameState.lose ? false : gameState.lose,
-            pause: false,
-            set: gameState.set + 1,
-        })
-    }
 
     const heroSelectHandler = (index) => {
         setHero({
@@ -177,8 +175,63 @@ const Frame = ({gameHelper, screenRotation}) => {
             pause: gameState.pause,
             set: gameState.set + 1,
             init: false,
+            infoMenuOpened: false
         })
     }
+
+    const fullScreenHandler = () => {
+
+        function launchFullScreen(element) {
+            if(element.requestFullScreen) {
+                element.requestFullScreen();
+            } else if(element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if(element.webkitRequestFullScreen) {
+                element.webkitRequestFullScreen();
+            }
+        }
+
+        function cancelFullscreen() {
+            if(document.cancelFullScreen) {
+                document.cancelFullScreen();
+            } else if(document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if(document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            }
+        }
+        if(fullScreenState){
+            cancelFullscreen()
+        } else {
+            launchFullScreen(gameFrame.current)
+        }
+        setFullScreenState(!fullScreenState)
+    }
+
+    function infoMenuHandler(){
+        const stateToUpd = {
+            infoMenuOpened: !gameState.infoMenuOpened
+        }
+        if(!gameState.infoMenuOpened){
+            stateToUpd.menuWasPaused = gameState.pause
+            stateToUpd.pause = true
+        } else {
+            stateToUpd.pause = gameState.menuWasPaused
+        }
+        updateGameState(stateToUpd)
+    }
+
+    const resetGame = () => {
+        updateGameState({
+            lose: gameState.lose ? false : gameState.lose,
+            pause: false,
+            set: gameState.set + 1,
+        })
+    }
+
+    //
+    //Hooks
+    //
 
     useUnshiftKeyPress(keyActionsMap.SPACE, "SPACE")
     useUnshiftKeyPress(keyActionsMap.m, "m")
@@ -224,6 +277,10 @@ const Frame = ({gameHelper, screenRotation}) => {
         }
     }, [])
 
+    //
+    //Styles and props prepare
+    //
+
     if(screenRotation === 0 || screenRotation === 180){
         gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameHeight
         gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameWidth
@@ -255,17 +312,20 @@ const Frame = ({gameHelper, screenRotation}) => {
                     soundMuted={soundState.muted}
                     key={gameState.set}
                     gameOnPause={gameState.pause}
-                    onPauseToggle={onPauseToggle}
+                    onPauseToggle={pauseToggleHandler}
                     char={hero.item}
                     gameHelper={gameHelper}
                     environment={locationData.environment}
                     bestScore={getSavedNumberVal("bestScore", 0)}
                 />
                 <NavigationLayout
+                    fullScreen={fullScreenState}
+                    fullScreenToggle={fullScreenHandler}
                     gameState={gameState}
-                    onPauseToggle={onPauseToggle}
+                    onPauseToggle={pauseToggleHandler}
                     soundMuted={soundState.muted}
-                    onSoundToggle={onSoundToggle}
+                    onSoundToggle={soundMutedToggleHandler}
+                    infoMenuToggle={infoMenuHandler}
                 />
                 {gameState.pause ?
                     <MenuLayout
@@ -281,17 +341,22 @@ const Frame = ({gameHelper, screenRotation}) => {
                             selectHandler: heroSelectHandler,
                         }}
 
+                        statistic={{
+                            scoreHistory : localStorage.getItem("scoreHistory"),
+                            bestScore : getSavedNumberVal("bestScore", 0)
+                        }}
+
                         sound={{
                             initValue: savedSoundVolume,
                             muted: soundState.muted,
-                            onSoundToggle,
-                            onSoundVolumeChange
+                            onSoundToggle: soundMutedToggleHandler,
+                            onSoundVolumeChange: soundVolumeChangeHandler
                         }}
 
                         game={{
                             state: gameState,
                             onResetGame: resetGame,
-                            onPauseToggle
+                            onPauseToggle: pauseToggleHandler
                         }}
                     />
                     : null}
