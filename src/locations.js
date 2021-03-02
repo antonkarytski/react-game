@@ -135,20 +135,24 @@ export const LOCATIONS = [
                 label: "АВТОЗАК",
                 weight: 0,
             }),
-            easyObstacle.littleFly({
-                type: "grenade",
-                label: "СВЕТОШУМОВАЯ",
-                weight: 0,
-            }),
             {
-                type: "monster-1",
-                label: "Путин",
+                type: "toiletBrush",
+                label: "Ершик",
                 weight: 0.5,
+                width: 47.5,
+                height: 17.5,
+                altitude:[10,140],
+                effect: "rotate"
+            },
+            {
+                type: "putin",
+                label: "Путин",
+                weight: 1,
                 width: 80,
                 height: 130,
                 altitude: 0,
                 sprite: 'putin2.gif',
-                customBgSize: "cover",
+                customBgSize: "auto",
                 sizeCorrection: {
                     top: 0.05,
                     left: 0.25,

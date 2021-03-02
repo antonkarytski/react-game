@@ -31,7 +31,8 @@ export const SETTINGS = {
         customBgSize: false,
         sizeCorrection: 0,
         randomWidth: 0,
-        randomHeight: 0
+        randomHeight: 0,
+        effect: false
     },
 
     heroFolder: 'chars',

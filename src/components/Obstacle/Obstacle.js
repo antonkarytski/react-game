@@ -9,29 +9,31 @@ const Obstacle = ({item, index, className, gameOnPause, frameWidth}) => {
         height,
         altitude,
         sprite,
+        effect
     } = item;
 
-    const styles = {
-        width: `${width}px`,
-        height: `${height}px`,
-        bottom: altitude || 0,
-        //backgroundSize: item.customBgSize || 'contain',
-        backgroundSize: `${width}px ${height}px`,
+    const compStyle = {
+        w: width,
+        h: height,
+        altitude: altitude || 0,
+        bgSize: item.customBgSize,
+        sprite: sprite,
     }
 
-    if(sprite) {styles.backgroundImage = `url(${process.env.PUBLIC_URL +"/"+sprite})`;}
-    else {styles.backgroundColor = 'red'}
-    if(gameOnPause) {
-        styles.animationPlayState = 'paused';
-    }
+    const style = {}
+    if (sprite) style.backgroundImage = `url(${process.env.PUBLIC_URL + "/" + sprite})`;
+    else style.backgroundColor = 'red'
+    if (gameOnPause) style.animationPlayState = 'paused';
 
     return (
         <StyledObstacle
+            effect={effect}
+            compStyle={compStyle}
+            style={style}
             frameWidth={frameWidth}
-            speed = {speed}
-            data-index = {index}
-            className = {className}
-            style = {styles}
+            speed={speed}
+            className={className}
+            data-index={index}
         />
     )
 }

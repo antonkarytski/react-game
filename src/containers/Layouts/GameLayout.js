@@ -82,7 +82,6 @@ const GameLayout = (props) => {
         const newObstacle = gameHelper.getRandomObstacle()
         newObstacle.position = gameHelper.settings.frameWidth // set start position
         newObstacle.speed = Math.floor(gameTime / 1000) + 1;
-        console.log(newObstacle)
         if(newObstacle.randomHeight)
             newObstacle.height = newObstacle.height - newObstacle.height * Math.random() * newObstacle.randomHeight
         if(newObstacle.randomWidth)
@@ -99,6 +98,7 @@ const GameLayout = (props) => {
 
     const step = 40;
     useTimer(() => {
+        let changes = false;
         const obstaclesToMove = obstaclesState.obstacles.map((obstacle, index) => {
             if (obstacle?.display) {
                 const obstacleDom = selfRef.current.querySelector(`[data-index = "${index}"]`)
@@ -107,8 +107,8 @@ const GameLayout = (props) => {
 
                 if (obstacleRelPosition.left <= -65) {
                     obstacle.display = false;
+                    changes = true;
                 } else {
-
                     const heroRelPosition = getRelPosition(heroDom.getBoundingClientRect());
                     const heroSizeCorrection = prepareCorrection(char.sizeCorrection,
                         {w: char.sizes.default.w, h: char.sizes.default.h})
@@ -116,20 +116,21 @@ const GameLayout = (props) => {
                         {w: obstacle.width, h: obstacle.height})
                     if (checkCollision(heroRelPosition, obstacleRelPosition, [heroSizeCorrection, obstacleSizeCorrection])) {
                         onPauseToggle("lose", gameTime + step)
+                        changes = true;
                     }
                     obstacle.position = obstacleRelPosition.left;
                 }
             }
             return obstacle
         })
-        setObstaclesState({
-            obstacles: obstaclesToMove,
-            nextObstacle: obstaclesState.nextObstacle
-        })
-        setGameTime(gameTime + step)
+        if(changes){
+            setObstaclesState({
+                obstacles: obstaclesToMove,
+                nextObstacle: obstaclesState.nextObstacle
+            })
+            setGameTime(gameTime + step)
+        }
     }, step, !gameOnPause, obstaclesState, gameOnPause)
-
-
 
 
     let relatedWidth = gameHelper.settings.frameHeight / environment.bgNaturalHeight * environment.bgNaturalWidth;
@@ -141,6 +142,7 @@ const GameLayout = (props) => {
     const selfStyle = {
         backgroundImage: `url(${process.env.PUBLIC_URL + "/" + environment.bgImage})`,
     }
+
     const effectStyle = {}
     if (gameOnPause) {
         selfStyle.animationPlayState = "paused";
