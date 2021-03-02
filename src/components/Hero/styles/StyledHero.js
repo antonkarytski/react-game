@@ -28,7 +28,7 @@ const jump = (height) => keyframes`
 `
 
 const sitAnimation = css`
-  animation: ${props => animSitMove(props.spriteSitPositions)} 0.3s steps(3) infinite
+  animation: ${props => animSitMove(props.sprite.sitPositions)} 0.3s steps(3) infinite
 `
 
 const jumpAnimation = css`
@@ -41,7 +41,7 @@ const StyledHero = styled.div`
   position: absolute;
   bottom: 0;
   z-index: 20;
-  -webkit-animation: ${props => animMove(props.spriteRunPositions)} .3s steps(${props => props.spriteRunSteps}) infinite;
+  -webkit-animation: ${props => animMove(props.sprite.runPositions)} .3s steps(${props => props.sprite.runSteps}) infinite;
   background-position-y: 0;  
 
   ${props => props.jump ? jumpAnimation : null};

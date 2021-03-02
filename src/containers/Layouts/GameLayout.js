@@ -26,11 +26,11 @@ const GameLayout = (props) => {
         obstacles: Array(stackSize),
         nextObstacle: 0
     })
-    const [gameTime, setGameTime] = useState(0)
+    const [gameStartTime] = useState(new Date())
     const selfRef = useRef(null)
 
-    const minTime = 700 - Math.floor(gameTime / 2000) * 10;
-    const maxTime = 2500 - Math.floor(gameTime / 2000) * 10;
+    const minTime = gameHelper.settings.generationMinTime - Math.floor((new Date() - gameStartTime) / 2000) * 10;
+    const maxTime = gameHelper.settings.generationMaxTime - Math.floor((new Date() - gameStartTime) / 2000) * 10;
 
     function getRelPosition(objPosition) {
         const windowDomRect = selfRef.current.getBoundingClientRect();
@@ -81,10 +81,10 @@ const GameLayout = (props) => {
         const obstaclesToAdd = [...obstaclesState.obstacles];
         const newObstacle = gameHelper.getRandomObstacle()
         newObstacle.position = gameHelper.settings.frameWidth // set start position
-        newObstacle.speed = Math.floor(gameTime / 1000) + 1;
-        if(newObstacle.randomHeight)
+        newObstacle.speed = Math.floor((new Date() - gameStartTime) / 1000) + 1;
+        if (newObstacle.randomHeight)
             newObstacle.height = newObstacle.height - newObstacle.height * Math.random() * newObstacle.randomHeight
-        if(newObstacle.randomWidth)
+        if (newObstacle.randomWidth)
             newObstacle.width = newObstacle.width + newObstacle.width * Math.random() * newObstacle.randomWidth
         obstaclesToAdd[obstaclesState.nextObstacle] = newObstacle;
         setObstaclesState({
@@ -94,11 +94,11 @@ const GameLayout = (props) => {
     }, [minTime, maxTime], !gameOnPause)
 
 
-//OBSTACLES LIFECYCLE\
+//OBSTACLES LIFECYCLE
 
     const step = 40;
     useTimer(() => {
-        let changes = false;
+        let changesFlag = false;
         const obstaclesToMove = obstaclesState.obstacles.map((obstacle, index) => {
             if (obstacle?.display) {
                 const obstacleDom = selfRef.current.querySelector(`[data-index = "${index}"]`)
@@ -107,7 +107,7 @@ const GameLayout = (props) => {
 
                 if (obstacleRelPosition.left <= -65) {
                     obstacle.display = false;
-                    changes = true;
+                    changesFlag = true;
                 } else {
                     const heroRelPosition = getRelPosition(heroDom.getBoundingClientRect());
                     const heroSizeCorrection = prepareCorrection(char.sizeCorrection,
@@ -115,23 +115,23 @@ const GameLayout = (props) => {
                     const obstacleSizeCorrection = prepareCorrection(obstacle.sizeCorrection,
                         {w: obstacle.width, h: obstacle.height})
                     if (checkCollision(heroRelPosition, obstacleRelPosition, [heroSizeCorrection, obstacleSizeCorrection])) {
-                        onPauseToggle("lose", gameTime + step)
-                        changes = true;
+                        onPauseToggle("lose", (new Date() - gameStartTime) / step)
+                        changesFlag = true;
                     }
                     obstacle.position = obstacleRelPosition.left;
                 }
             }
             return obstacle
         })
-        if(changes){
+        if (changesFlag) {
             setObstaclesState({
                 obstacles: obstaclesToMove,
                 nextObstacle: obstaclesState.nextObstacle
             })
-            setGameTime(gameTime + step)
         }
     }, step, !gameOnPause, obstaclesState, gameOnPause)
 
+//RENDERS PREPARE
 
     let relatedWidth = gameHelper.settings.frameHeight / environment.bgNaturalHeight * environment.bgNaturalWidth;
     if (relatedWidth < gameHelper.settings.frameWidth) {
@@ -150,12 +150,13 @@ const GameLayout = (props) => {
     }
 
     let gameEffects = null
-    switch(environment.effects){
+    switch (environment.effects) {
         case "disco":
             gameEffects =
                 <StyledLayer className={classes.FilterLayout} style={effectStyle}/>
             break
-        default: gameEffects = null
+        default:
+            gameEffects = null
             break
     }
 
@@ -169,11 +170,13 @@ const GameLayout = (props) => {
 
             <Counter
                 bestScore={bestScore}
-                score={gameTime}
-                className={"counter"}/>
+                startTime={gameStartTime}
+                className={"counter"}
+                gameOnPause={gameOnPause}
+            />
 
             <Hero
-                frameWidth = {gameHelper.settings.frameWidth}
+                frameWidth={gameHelper.settings.frameWidth}
                 soundVolume={soundVolume}
                 soundMuted={soundMuted}
                 gameOnPause={gameOnPause}
@@ -198,9 +201,8 @@ const GameLayout = (props) => {
                     return null
                 })
             }
+
             {gameEffects}
-
-
         </StyledGame>
     )
 }

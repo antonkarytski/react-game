@@ -18,42 +18,42 @@ const NavigationLayout = (props) => {
     } = props
 
     return (
-        <>
-            <div className={classes.NavigationLayout}>
-                <Button
-                    onClick={onPauseToggle}
-                    className={classes.MenuButton}
-                    valueDefault={faTimes}
-                    valueToggled={faBars}
-                    faIcon={true}
-                    toggled={gameState.pause}
-                    condition={!gameState.lose}
-                />
-                <SoundButton
-                    onSoundToggle={onSoundToggle}
-                    className={[classes.MenuButton, classes.VolumeButton].join(" ")}
-                    soundMuted={soundMuted}
-                />
-                <Button
-                    onClick={infoMenuToggle}
-                    className={[classes.MenuButton, classes.QuestionButton].join(" ")}
-                    valueDefault={faQuestion}
-                    valueToggled={faTimes}
-                    faIcon={true}
-                    toggled={!gameState.infoMenuOpened}
-                    //condition={!gameState.lose}
-                />
-                <Button
-                    onClick={fullScreenToggle}
-                    className={[classes.MenuButton, classes.FullScreenButton].join(" ")}
-                    valueDefault={faExpandArrowsAlt}
-                    valueToggled={faCompressArrowsAlt}
-                    faIcon={true}
-                    toggled={!fullScreen}
-                    condition={!gameState.lose}
-                />
-            </div>
-        </>
+
+        <div className={classes.NavigationLayout}>
+            <Button
+                onClick={onPauseToggle}
+                className={classes.MenuButton}
+                valueDefault={faTimes}
+                valueToggled={faBars}
+                faIcon={true}
+                toggled={gameState.pause}
+                condition={!gameState.lose}
+            />
+            <SoundButton
+                onSoundToggle={onSoundToggle}
+                className={[classes.MenuButton, classes.VolumeButton].join(" ")}
+                soundMuted={soundMuted}
+            />
+
+            <Button
+                onClick={infoMenuToggle}
+                className={[classes.MenuButton, classes.QuestionButton].join(" ")}
+                valueDefault={faQuestion}
+                valueToggled={faTimes}
+                faIcon={true}
+                toggled={!gameState.infoMenuOpened}
+            />
+
+            <Button
+                onClick={fullScreenToggle}
+                className={[classes.MenuButton, classes.FullScreenButton].join(" ")}
+                valueDefault={faExpandArrowsAlt}
+                valueToggled={faCompressArrowsAlt}
+                faIcon={true}
+                toggled={!fullScreen}
+                condition={!gameState.lose}
+            />
+        </div>
     )
 }
 

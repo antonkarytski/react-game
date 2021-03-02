@@ -12,19 +12,19 @@ export const LOCATIONS = [
                 name: "soldier",
                 label: "Soldier 1",
                 soundJump: true,
-                sizes : {
-                    default : {
-                        w : 40,
-                        h : 50
+                sizes: {
+                    default: {
+                        w: 40,
+                        h: 50
                     },
-                    sit : {
-                        w : 50,
-                        h : 40
+                    sit: {
+                        w: 50,
+                        h: 40
                     }
                 },
-                spriteRunPositions: [{x:0,y:0}, {x: 139, y:0}],
+                spriteRunPositions: [{x: 0, y: 0}, {x: 139, y: 0}],
                 spriteRunSteps: 3,
-                spriteSitPositions: [{x:140,y:10},{x: 295, y:10}],
+                spriteSitPositions: [{x: 140, y: 10}, {x: 295, y: 10}],
             }
         ],
 
@@ -94,22 +94,22 @@ export const LOCATIONS = [
             {
                 name: "navalny",
                 label: "Леша Навальный",
-                sizes : {
-                    default : {
-                        w : 60,
-                        h : 110
+                sizes: {
+                    default: {
+                        w: 60,
+                        h: 110
                     },
-                    sit : {
-                        w : 100,
-                        h : 75
+                    sit: {
+                        w: 100,
+                        h: 75
                     }
                 },
                 soundHello: true,
-                spriteRunPositions: [{x:0,y:0},{x: 299, y:0}],
+                spriteRunPositions: [{x: 0, y: 0}, {x: 299, y: 0}],
                 spriteRunSteps: 4,
-                spriteSitPositions: [{x:0,y:115},{x: 355, y:115}],
-                spriteJumpPosition: {x:385, y: 0},
-                spriteDefaultPosition : {x:310, y: 0},
+                spriteSitPositions: [{x: 0, y: 115}, {x: 355, y: 115}],
+                spriteJumpPosition: {x: 385, y: 0},
+                spriteDefaultPosition: {x: 310, y: 0},
                 sizeCorrection: {
                     top: 0,
                     left: 0.15,
@@ -141,7 +141,7 @@ export const LOCATIONS = [
                 weight: 0.5,
                 width: 47.5,
                 height: 17.5,
-                altitude:[10,140],
+                altitude: [10, 140],
                 effect: "rotate"
             },
             {

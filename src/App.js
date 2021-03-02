@@ -12,7 +12,7 @@ const App = () => {
 
     const [screenRotation, setScreenRotation] = useState(
         window.screen?.orientation?.angle
-        ?? window.orientation);
+        ?? window.orientation); //for iOs
 
 
     const updateScreenRotation = () => {

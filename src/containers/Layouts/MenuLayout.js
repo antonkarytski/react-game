@@ -25,7 +25,6 @@ function MenuLayout(props) {
     let menuContent = null;
     const resetClasses = [classesCss.BigButton, classesCss.ResetButton].join(" ")
 
-
     switch (menuMode) {
         case "init":
             if (game.state.infoMenuOpened) {
@@ -123,7 +122,6 @@ function MenuLayout(props) {
             break
         default:
             currentColonContent = null
-
     }
 
     return (

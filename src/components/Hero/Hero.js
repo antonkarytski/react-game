@@ -60,7 +60,7 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
                     updateHeroState({move: 'jump'})
                     setTimeout(() => {
                         updateHeroState({move: 'stand'})
-                    }, 700 * 1.5 - 200)
+                    }, 700 * 1.4 - 200)
                 }
             },
             left: () => {
@@ -202,15 +202,17 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
 
     return (
         <StyledHero
-            ref={heroDom}
             id={'hero'}
+            ref={heroDom}
             style={styles}
             jump={heroState.move === 'jump'}
             sit={heroState.move === 'sit'}
-            spriteRunPositions={item.spriteRunPositions}
-            spriteRunSteps={item.spriteRunSteps}
-            spriteSitPositions={item.spriteSitPositions}
-            heroSizes={item.sizes}
+            sprite={{
+                runPositions : item.spriteRunPositions,
+                runSteps : item.spriteRunSteps,
+                sitPositions : item.spriteSitPositions,
+            }}
+            heroSizes={item.sizes} //only for calculation jump height, so there is no need in current size
         >
             {
                 soundArray.map((sound, index) => {

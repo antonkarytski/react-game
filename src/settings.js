@@ -7,6 +7,9 @@ export const SETTINGS = {
     defaultLocation: 1,
     pathToAssets : 'assets',
 
+    generationMinTime: 700,
+    generationMaxTime: 2500,
+
     locationSoundFolder : 'sounds',
     defaultLocationPreview : 'preview.jpg',
     defaultLocationBgSound : 'bgmusic.mp3',

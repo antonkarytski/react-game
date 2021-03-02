@@ -37,8 +37,8 @@ const animationRotate = css`
 const animationMove = css`
 ${props => move(props.frameWidth)} ${props => calculateSpeed(props.speed, props.frameWidth)}s linear
 `
-const animationSet =css`
-animation: ${animationMove}${props => props.effect === "rotate"? animationRotate : null}
+const animationSet = css`
+animation: ${animationMove}${props => props.effect === "rotate" ? animationRotate : null}
 `
 
 export default styled.div`
