@@ -107,6 +107,9 @@ export const LOCATIONS = [
             bgNaturalWidth: 4548,
             bgNaturalHeight: 1000,
             bgImage: 'bg-common.png',
+            bgNaturalMobileWidth: 2465,
+            bgNaturalMobileHeight: 700,
+            bgMobileImage: 'bg-common-mobile.png',
 
         }
     },
