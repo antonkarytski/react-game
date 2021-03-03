@@ -27,12 +27,11 @@ const Obstacle = ({item, index, className, gameOnPause, frameWidth}) => {
 
     return (
         <StyledObstacle
-            width={width}
             effect={effect}
             compStyle={compStyle}
             style={style}
             frameWidth={frameWidth}
-            speed={speed}
+            selfSpeed={speed}
             className={className}
             data-index={index}
         />

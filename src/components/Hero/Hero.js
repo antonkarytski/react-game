@@ -204,6 +204,7 @@ const Hero = ({item: heroData, gameOnPause, soundMuted, soundVolume, frameWidth}
                 runPositions : heroData.spriteRunPositions,
                 runSteps : heroData.spriteRunSteps,
                 sitPositions : heroData.spriteSitPositions,
+                sitSteps : heroData.spriteSitSteps,
             }}
             heroSizes={heroData.sizes} //only for calculation jump height, so there is no need in current size
         >

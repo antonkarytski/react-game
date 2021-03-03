@@ -3,11 +3,8 @@ import Audio from "../components/Helpres/Audio";
 import GameLayout from "./Layouts/GameLayout";
 import NavigationLayout from "./Layouts/NavigationLayout";
 import MenuLayout from "./Layouts/MenuLayout";
-
 import classesCss from './Frame.module.scss'
-
 import useUnshiftKeyPress from "../hooks/useUnshiftKeyPress";
-import useWindowSize from "../hooks/useWindowSize";
 
 
 /*
@@ -245,9 +242,6 @@ const Frame = ({gameHelper, windowSize}) => {
 
     useUnshiftKeyPress(keyActionsMap.SPACE, "SPACE")
     useUnshiftKeyPress(keyActionsMap.m, "m")
-
-    const g = useWindowSize()
-    console.log(g)
 
     useEffect(() => {
         localStorage.setItem("hero", hero.index + "")

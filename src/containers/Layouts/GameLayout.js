@@ -195,7 +195,6 @@ const GameLayout = (props) => {
             {
                 obstaclesState.obstacles.map((obstacle, index) => {
                     if (obstacle?.display) {
-                        console.log(obstacle)
                         return (
                             <Obstacle
                                 frameWidth={gameHelper.settings.frameWidth}

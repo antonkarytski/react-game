@@ -74,6 +74,7 @@ export const SETTINGS = {
         soundJump : false,
         spriteRunPositions: [{x: 0, y: 0},{x: 299, y: 0}],
         spriteRunSteps: 3,
+        spriteSitSteps: 3,
         sizeCorrection: 0,
         sizeSitCorrection: 0
     },

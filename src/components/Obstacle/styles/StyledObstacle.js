@@ -7,7 +7,7 @@ const getScale=(width) =>{
     return 1
 }
 
-const move = (frameWidth, selfWidth) => keyframes`
+const move = (frameWidth) => keyframes`
   0%{
     left: ${frameWidth}px;
   }
@@ -30,7 +30,7 @@ const backgroundSize = css`
         }
         return props.compStyle.bgSize
     }
-    return 'contain'
+    return 'cover'
 })(props)}
 `
 
@@ -38,7 +38,7 @@ const animationRotate = css`
 ,${rotation} 0.4s linear infinite
 `
 const animationMove = css`
-${props => move(props.frameWidth, props.width)} ${props => props.frameWidth/props.speed * getScale(props.frameWidth)}s linear
+${props => move(props.frameWidth)} ${props => props.frameWidth/props.selfSpeed * getScale(props.frameWidth)}s linear
 `
 const animationSet = css`
 animation: ${animationMove}${props => props.effect === "rotate" ? animationRotate : null}

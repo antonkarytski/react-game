@@ -2,10 +2,10 @@ import styled, {keyframes} from 'styled-components'
 
 const bgMove = (width) => keyframes`
   0%{
-    background-position: 0;
+    background-position: 0 0;
   }
   100%{
-    background-position: -${width}px;
+    background-position: -${width}px 0;
   }
 `
 
@@ -34,12 +34,12 @@ export const StyledLayer = styled.div`
 animation: ${party} 10s steps(6) infinite;
 `
 
-
 export default styled.div`
 
   position: absolute;
   animation: ${props => bgMove(props.bgWidth)} ${props => props.bgTime}s linear infinite;
   background-size: cover;
+  background-attachment: initial; 
  
 `
 

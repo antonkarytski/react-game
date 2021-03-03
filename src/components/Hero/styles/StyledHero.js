@@ -28,7 +28,7 @@ const jump = (height) => keyframes`
 `
 
 const sitAnimation = css`
-  animation: ${props => animSitMove(props.sprite.sitPositions)} 0.3s steps(3) infinite
+  animation: ${props => animSitMove(props.sprite.sitPositions)} 0.3s steps(${props => props.sprite.sitSteps}) infinite
 `
 
 const jumpAnimation = css`
