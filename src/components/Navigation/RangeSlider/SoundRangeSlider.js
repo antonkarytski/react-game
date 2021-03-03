@@ -25,6 +25,7 @@ export default function SoundRangeSlider({onChange, onSoundToggle, soundMuted, i
                 className={"slider"}
                 id={"myRange"}
                 onMouseUp={() => onChange(sliderValue)}
+                onTouchEnd={() => onChange(sliderValue)}
             />
         </div>
     );

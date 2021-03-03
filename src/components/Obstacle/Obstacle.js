@@ -27,6 +27,7 @@ const Obstacle = ({item, index, className, gameOnPause, frameWidth}) => {
 
     return (
         <StyledObstacle
+            width={width}
             effect={effect}
             compStyle={compStyle}
             style={style}

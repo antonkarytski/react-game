@@ -2,7 +2,6 @@ import React, {useRef, useState} from 'react'
 import classes from './styles/Layouts.module.scss'
 import Hero from '../../components/Hero/Hero';
 import Obstacle from '../../components/Obstacle/Obstacle';
-import Counter from "../../components/Navigation/Counter/Counter";
 import StyledGame, {StyledLayer} from "./styles/StyledGame";
 import useTimerGenerator from "../../hooks/useTimerGenerator";
 import useTimer from "../../hooks/useTimer";
@@ -16,7 +15,6 @@ const GameLayout = (props) => {
         onPauseToggle,
         gameOnPause,
         environment,
-        bestScore,
         soundVolume,
         soundMuted
     } = props
@@ -24,13 +22,19 @@ const GameLayout = (props) => {
     const stackSize = 8;
     const [obstaclesState, setObstaclesState] = useState({
         obstacles: Array(stackSize),
-        nextObstacle: 0
+        nextObstacle: 0,
+        count: 0
     })
-    const [gameStartTime] = useState(new Date())
     const selfRef = useRef(null)
 
-    const minTime = gameHelper.settings.generationMinTime - Math.floor((new Date() - gameStartTime) / 2000) * 10;
-    const maxTime = gameHelper.settings.generationMaxTime - Math.floor((new Date() - gameStartTime) / 2000) * 10;
+
+    const minTime = gameHelper.settings.minTimeDecreaseFunction(
+        gameHelper.settings.generationMinTime,
+        obstaclesState.count)
+
+    const maxTime = gameHelper.settings.maxTimeDecreaseFunction(
+        gameHelper.settings.generationMaxTime,
+        obstaclesState.count)
 
     function getRelPosition(objPosition) {
         const windowDomRect = selfRef.current.getBoundingClientRect();
@@ -81,7 +85,7 @@ const GameLayout = (props) => {
         const obstaclesToAdd = [...obstaclesState.obstacles];
         const newObstacle = gameHelper.getRandomObstacle()
         newObstacle.position = gameHelper.settings.frameWidth // set start position
-        newObstacle.speed = Math.floor((new Date() - gameStartTime) / 1000) + 1;
+        newObstacle.speed = gameHelper.settings.speedFunction(gameHelper.settings.baseSpeed, obstaclesState.count)
         if (newObstacle.randomHeight)
             newObstacle.height = newObstacle.height - newObstacle.height * Math.random() * newObstacle.randomHeight
         if (newObstacle.randomWidth)
@@ -89,14 +93,14 @@ const GameLayout = (props) => {
         obstaclesToAdd[obstaclesState.nextObstacle] = newObstacle;
         setObstaclesState({
             obstacles: obstaclesToAdd,
-            nextObstacle: obstaclesState.nextObstacle < stackSize - 1 ? obstaclesState.nextObstacle + 1 : 0
+            nextObstacle: obstaclesState.nextObstacle < stackSize - 1 ? obstaclesState.nextObstacle + 1 : 0,
+            count: obstaclesState.count+1
         });
     }, [minTime, maxTime], !gameOnPause)
 
 
 //OBSTACLES LIFECYCLE
 
-    const step = 40;
     useTimer(() => {
         let changesFlag = false;
         const obstaclesToMove = obstaclesState.obstacles.map((obstacle, index) => {
@@ -104,21 +108,30 @@ const GameLayout = (props) => {
                 const obstacleDom = selfRef.current.querySelector(`[data-index = "${index}"]`)
                 const heroDom = selfRef.current.querySelector('#hero')
                 const obstacleRelPosition = getRelPosition(obstacleDom.getBoundingClientRect());
-
-                if (obstacleRelPosition.left <= -65) {
+                if (obstacleRelPosition.left <= -130) {
                     obstacle.display = false;
                     changesFlag = true;
                 } else {
                     const heroRelPosition = getRelPosition(heroDom.getBoundingClientRect());
-                    const heroSizeCorrection = prepareCorrection(char.sizeCorrection,
-                        {w: char.sizes.default.w, h: char.sizes.default.h})
+                    let heroSizeCorrection = null
+
+                    //Check if hero on sitState
+                    //If hero on sitState so we use Correction fo sit
+                    //top+5 cause real size is little less then that settled in settings
+                    //If not - correction for standState
+                    if(heroRelPosition.top+5 < char.sizes.default.h){
+                        heroSizeCorrection = prepareCorrection(char.sizeSitCorrection,
+                            {w: char.sizes.sit.w, h: char.sizes.sit.h})
+                    } else {
+                        heroSizeCorrection = prepareCorrection(char.sizeCorrection,
+                            {w: char.sizes.default.w, h: char.sizes.default.h})
+                    }
                     const obstacleSizeCorrection = prepareCorrection(obstacle.sizeCorrection,
                         {w: obstacle.width, h: obstacle.height})
                     if (checkCollision(heroRelPosition, obstacleRelPosition, [heroSizeCorrection, obstacleSizeCorrection])) {
-                        onPauseToggle("lose", (new Date() - gameStartTime) / step)
+                        onPauseToggle("lose")
                         changesFlag = true;
                     }
-                    obstacle.position = obstacleRelPosition.left;
                 }
             }
             return obstacle
@@ -126,10 +139,11 @@ const GameLayout = (props) => {
         if (changesFlag) {
             setObstaclesState({
                 obstacles: obstaclesToMove,
-                nextObstacle: obstaclesState.nextObstacle
+                nextObstacle: obstaclesState.nextObstacle,
+                count: obstaclesState.count
             })
         }
-    }, step, !gameOnPause, obstaclesState, gameOnPause)
+    }, 40, !gameOnPause, obstaclesState, gameOnPause)
 
 //RENDERS PREPARE
 
@@ -160,6 +174,7 @@ const GameLayout = (props) => {
             break
     }
 
+
     return (
         <StyledGame
             bgWidth={relatedWidth}
@@ -167,13 +182,6 @@ const GameLayout = (props) => {
             ref={selfRef}
             style={selfStyle}
             className={classes.GameLayout}>
-
-            <Counter
-                bestScore={bestScore}
-                startTime={gameStartTime}
-                className={"counter"}
-                gameOnPause={gameOnPause}
-            />
 
             <Hero
                 frameWidth={gameHelper.settings.frameWidth}
@@ -187,6 +195,7 @@ const GameLayout = (props) => {
             {
                 obstaclesState.obstacles.map((obstacle, index) => {
                     if (obstacle?.display) {
+                        console.log(obstacle)
                         return (
                             <Obstacle
                                 frameWidth={gameHelper.settings.frameWidth}

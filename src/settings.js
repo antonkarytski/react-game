@@ -7,8 +7,21 @@ export const SETTINGS = {
     defaultLocation: 1,
     pathToAssets : 'assets',
 
-    generationMinTime: 700,
-    generationMaxTime: 2500,
+    generationMinTime: 600,
+    generationMaxTime: 2150,
+    baseSpeed: 200,
+
+    minTimeDecreaseFunction: function(time, anchor, multi = 250){
+        return time - anchor ** (1/9) * multi + multi
+    },
+
+    maxTimeDecreaseFunction: function(time, anchor, multi = 500){
+        return time - anchor ** (1/5) * multi + multi
+    },
+
+    speedFunction: function(baseSpeed, anchor){
+        return  baseSpeed + baseSpeed * (Math.log(anchor+1)/Math.log(10)/27.2) * (anchor ** (1/2.72))
+    },
 
     locationSoundFolder : 'sounds',
     defaultLocationPreview : 'preview.jpg',
@@ -61,5 +74,7 @@ export const SETTINGS = {
         soundJump : false,
         spriteRunPositions: [{x: 0, y: 0},{x: 299, y: 0}],
         spriteRunSteps: 3,
+        sizeCorrection: 0,
+        sizeSitCorrection: 0
     },
 }

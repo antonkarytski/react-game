@@ -4,17 +4,18 @@ import StyledHero from "./styles/StyledHero";
 import Audio from "../Helpres/Audio";
 import useEventListener from "../../hooks/useEventListener";
 
-const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
+const Hero = ({item: heroData, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
+
+
 
     const [heroState, setHeroState] = useState({
         posX: 0,
         move: 'stand', //stand, run, jump, sit
-        size: item.sizes.default
+        size: heroData.sizes.default
     });
     const [firstLoad, setFirstLoad] = useState(true)
     const [touchState, setTouchState] = useState('done')
     const heroDom = useRef(null);
-
 
     //redundant
     const soundMap = {
@@ -28,7 +29,7 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
                 if (heroState.move === 'sit') {
                     const newHeroState = {
                         move: 'stand',
-                        size: item.sizes.default
+                        size: heroData.sizes.default
                     }
                     updateHeroState(newHeroState)
                 }
@@ -49,7 +50,7 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
                 if (heroState.move !== 'jump' && heroState.move !== 'sit') {
                     const newHeroState = {
                         move: 'sit',
-                        size: item.sizes.sit
+                        size: heroData.sizes.sit
                     }
                     updateHeroState(newHeroState)
                 }
@@ -89,7 +90,6 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
             if (!gameOnPause) {
                 setTouchState({y: event.touches[0].clientY, x: event.touches[0].clientX})
             }
-
         },
 
         touchMove: (event) => {
@@ -126,7 +126,7 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
     }
 
     const playSound = (sound) => {
-        if (item[sound]) {
+        if (heroData[sound]) {
             heroDom.current.querySelector(`audio#${soundMap[sound]}`).play();
         }
     }
@@ -149,26 +149,19 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
 
     useEffect(() => {
         for (let sound in soundMap) {
-            if (item[sound]) {
+            if (heroData[sound]) {
                 const soundEffect = heroDom.current.querySelector(`audio#${soundMap[sound]}`);
                 soundEffect.muted = soundMuted;
                 soundEffect.volume = soundVolume / 100;
             }
         }
-    }, [soundMuted, soundVolume])
+    }, [heroData, soundMuted, soundVolume])
 
     useEffect(() => {
         updateHeroState({
-            size: item.sizes.default
+            size: heroData.sizes.default
         })
-        for (let sound in soundMap) {
-            if (item[sound]) {
-                const soundEffect = heroDom.current.querySelector(`audio#${soundMap[sound]}`);
-                soundEffect.muted = soundMuted;
-                soundEffect.volume = soundVolume / 100;
-            }
-        }
-    }, [item])
+    }, [heroData])
 
     useEffect(() => {
         if (!gameOnPause && firstLoad) {
@@ -179,23 +172,23 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
 
     const soundArray = []
     for (let sound in soundMap) {
-        if (item[sound]) {
+        if (heroData[sound]) {
             soundArray.push({
                 id: soundMap[sound],
-                src: item[sound]
+                src: heroData[sound]
             })
         }
     }
 
     const styles = {
-        backgroundImage: `url(${process.env.PUBLIC_URL + item.sprite})`,
+        backgroundImage: `url(${process.env.PUBLIC_URL + heroData.sprite})`,
         left: `${heroState.posX}px`,
         height: `${heroState.size.h}px`,
         width: `${heroState.size.w}px`
     }
 
-    if (heroState.move === 'jump' && item.spriteJumpPosition) {
-        styles.backgroundPosition = `-${item.spriteJumpPosition.x}px -${item.spriteJumpPosition.y}px`
+    if (heroState.move === 'jump' && heroData.spriteJumpPosition) {
+        styles.backgroundPosition = `-${heroData.spriteJumpPosition.x}px -${heroData.spriteJumpPosition.y}px`
     }
 
     if (gameOnPause) styles.animationPlayState = 'paused';
@@ -208,11 +201,11 @@ const Hero = ({item, gameOnPause, soundMuted, soundVolume, frameWidth}) => {
             jump={heroState.move === 'jump'}
             sit={heroState.move === 'sit'}
             sprite={{
-                runPositions : item.spriteRunPositions,
-                runSteps : item.spriteRunSteps,
-                sitPositions : item.spriteSitPositions,
+                runPositions : heroData.spriteRunPositions,
+                runSteps : heroData.spriteRunSteps,
+                sitPositions : heroData.spriteSitPositions,
             }}
-            heroSizes={item.sizes} //only for calculation jump height, so there is no need in current size
+            heroSizes={heroData.sizes} //only for calculation jump height, so there is no need in current size
         >
             {
                 soundArray.map((sound, index) => {

@@ -1,37 +1,23 @@
-import React, {useEffect, useState} from 'react'
+import React from 'react'
 import './styles/styles.scss';
 import Frame from "./containers/Frame";
 import {LOCATIONS} from "./locations";
 import {SETTINGS} from "./settings";
 import gameHelperClass from "./gameHelper";
 import StyledApp from "./styles/StyledApp";
+import useWindowSize from "./hooks/useWindowSize";
 
 const gameHelper = new gameHelperClass(SETTINGS, LOCATIONS)
 
 const App = () => {
 
-    const [screenRotation, setScreenRotation] = useState(
-        window.screen?.orientation?.angle
-        ?? window.orientation); //for iOs
-
-
-    const updateScreenRotation = () => {
-        setScreenRotation(
-            window.screen?.orientation?.angle
-            ?? window.orientation)
-    }
-
-    useEffect(() => {
-        window.addEventListener("orientationchange",updateScreenRotation)
-        return () => window.removeEventListener("orientationchange",updateScreenRotation)
-    }, [])
-
+    const windowSize = useWindowSize()
 
     return (
         <StyledApp>
             <Frame
                 gameHelper={gameHelper}
-                screenRotation = {screenRotation}
+                windowSize = {windowSize}
             />
         </StyledApp>
     );

@@ -6,7 +6,6 @@ export const LOCATIONS = [
         label: "Опасные джунгли",
         preview: "",
 
-
         heroes: [
             {
                 name: "soldier",
@@ -97,12 +96,24 @@ export const LOCATIONS = [
                 sizes: {
                     default: {
                         w: 60,
-                        h: 110
+                        h: 110,
                     },
                     sit: {
                         w: 100,
                         h: 75
                     }
+                },
+                sizeCorrection: {
+                    top: 0.1,
+                    left: 0.15,
+                    right: 0,
+                    bottom: 0.2,
+                },
+                sizeSitCorrection: {
+                    top: 0.1,
+                    left: 0,
+                    right: 0.45,
+                    bottom: 0,
                 },
                 soundHello: true,
                 spriteRunPositions: [{x: 0, y: 0}, {x: 299, y: 0}],
@@ -110,12 +121,7 @@ export const LOCATIONS = [
                 spriteSitPositions: [{x: 0, y: 115}, {x: 355, y: 115}],
                 spriteJumpPosition: {x: 385, y: 0},
                 spriteDefaultPosition: {x: 310, y: 0},
-                sizeCorrection: {
-                    top: 0,
-                    left: 0.15,
-                    right: 0,
-                    bottom: 0.2,
-                },
+
             }
         ],
 
@@ -139,9 +145,9 @@ export const LOCATIONS = [
                 type: "toiletBrush",
                 label: "Ершик",
                 weight: 0.5,
-                width: 47.5,
-                height: 17.5,
-                altitude: [10, 140],
+                width: 57,
+                height: 21,
+                altitude: [25, 175],
                 effect: "rotate"
             },
             {
@@ -159,8 +165,8 @@ export const LOCATIONS = [
                     right: 0.25,
                     bottom: 0,
                 },
-                randomWidth: 1.1,
-                randomHeight: 0.5
+                randomWidth: 1.8,
+                randomHeight: 0.3
             },
         ],
 

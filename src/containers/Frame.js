@@ -7,6 +7,7 @@ import MenuLayout from "./Layouts/MenuLayout";
 import classesCss from './Frame.module.scss'
 
 import useUnshiftKeyPress from "../hooks/useUnshiftKeyPress";
+import useWindowSize from "../hooks/useWindowSize";
 
 
 /*
@@ -26,10 +27,10 @@ Navigation Layout:
 
  */
 
-const Frame = ({gameHelper, screenRotation}) => {
+const Frame = ({gameHelper, windowSize}) => {
 
     //
-    //Init save in local storage values
+    //Init saved in local storage values
     //
 
     const savedSoundMuted = Boolean(getSavedNumberVal("soundMuted", 0))
@@ -46,7 +47,8 @@ const Frame = ({gameHelper, screenRotation}) => {
         lose: false,
         set: 1,
         init: true,
-        infoMenuOpened: false
+        infoMenuOpened: false,
+        gameStartTime: new Date()
     })
 
     const [hero, setHero] = useState({
@@ -112,6 +114,10 @@ const Frame = ({gameHelper, screenRotation}) => {
         return gameFrame.current.querySelector(`audio#${selector}`)
     }
 
+    function getScore(){
+        return gameFrame.current.querySelector("#score-counter").dataset.score
+    }
+
     const soundVolumeChangeHandler = (soundVolume) => {
         setSoundState({
             volume: soundVolume,
@@ -127,7 +133,10 @@ const Frame = ({gameHelper, screenRotation}) => {
         })
     }
 
-    const pauseToggleHandler = (flag = false, score = 0) => {
+
+
+    const pauseToggleHandler = (flag = false) => {
+        const score = getScore();
 
         if (score > getSavedNumberVal("bestScore", 0)) {
             localStorage.setItem("bestScore", score + "")
@@ -226,6 +235,7 @@ const Frame = ({gameHelper, screenRotation}) => {
             lose: gameState.lose ? false : gameState.lose,
             pause: false,
             set: gameState.set + 1,
+            gameStartTime: new Date()
         })
     }
 
@@ -235,6 +245,9 @@ const Frame = ({gameHelper, screenRotation}) => {
 
     useUnshiftKeyPress(keyActionsMap.SPACE, "SPACE")
     useUnshiftKeyPress(keyActionsMap.m, "m")
+
+    const g = useWindowSize()
+    console.log(g)
 
     useEffect(() => {
         localStorage.setItem("hero", hero.index + "")
@@ -281,13 +294,23 @@ const Frame = ({gameHelper, screenRotation}) => {
     //Styles and props prepare
     //
 
-    if(screenRotation === 0 || screenRotation === 180){
-        gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameHeight
+    if(windowSize.width < gameHelper.settings.defaultFrameWidth){
+        gameHelper.settings.frameWidth = windowSize.width
+        gameHelper.settings.frameBorder = false
+    } else {
         gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameWidth
-    } else{
-        gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameWidth
-        gameHelper.settings.frameWidth = gameHelper.settings.defaultFrameHeight
+        gameHelper.settings.frameBorder = true
+    }
 
+    if(windowSize.width < windowSize.height){
+        gameHelper.settings.frameHeight = windowSize.height
+        gameHelper.settings.frameBorder = false
+    } else if(windowSize.height < gameHelper.settings.defaultFrameHeight){
+        gameHelper.settings.frameHeight = windowSize.height
+        gameHelper.settings.frameBorder = false
+    } else {
+        gameHelper.settings.frameHeight = gameHelper.settings.defaultFrameHeight
+        gameHelper.settings.frameBorder = true
     }
 
     const style = {
@@ -312,13 +335,15 @@ const Frame = ({gameHelper, screenRotation}) => {
                     soundMuted={soundState.muted}
                     key={gameState.set}
                     gameOnPause={gameState.pause}
+                    startTime={gameState.gameStartTime}
                     onPauseToggle={pauseToggleHandler}
                     char={hero.item}
                     gameHelper={gameHelper}
                     environment={locationData.environment}
-                    bestScore={getSavedNumberVal("bestScore", 0)}
                 />
                 <NavigationLayout
+                    counterId = {"score-counter"}
+                    bestScore={getSavedNumberVal("bestScore", 0)}
                     fullScreen={fullScreenState}
                     fullScreenToggle={fullScreenHandler}
                     gameState={gameState}

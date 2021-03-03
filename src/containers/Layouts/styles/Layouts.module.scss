@@ -38,7 +38,6 @@
 
     &.QuestionButton{
       font-size: 23px;
-      margin-left: auto;
     }
 
     &.FullScreenButton{
@@ -120,7 +119,7 @@
       display: flex;
       flex-direction: column;
       width: 100%;
-      align-items: flex-start;
+      align-items: center;
 
       .SelectButton{
         margin-top: 10px;

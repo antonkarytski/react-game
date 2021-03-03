@@ -13,35 +13,6 @@ export default class gameHelperClass{
         this.settings = Object.assign({},settings)
         this.locations = Object.assign({},locations)
 
-        const currentScreenRotation = window.screen?.orientation?.angle ?? window.orientation
-
-        if(currentScreenRotation === 0 || currentScreenRotation === 180){
-            if (window.innerWidth < settings.defaultFrameWidth){
-                this.settings.defaultFrameWidth = window.innerWidth
-                this.settings.defaultFrameBorder = false
-            }
-            if(window.innerHeight > window.innerWidth || window.innerHeight < settings.defaultFrameHeight){
-                this.settings.defaultFrameHeight = window.innerHeight
-                this.settings.defaultFrameBorder = false
-            }
-            this.settings.frameWidth = settings.defaultFrameWidth;
-            this.settings.frameHeight = settings.defaultFrameHeight;
-
-        } else {
-            if (window.innerWidth < settings.defaultFrameWidth){
-                this.settings.defaultFrameHeight = window.innerWidth
-                this.settings.defaultFrameBorder = false
-
-            }
-            if(window.innerHeight > window.innerWidth || window.innerHeight < settings.defaultFrameHeight){
-                this.settings.defaultFrameWidth = window.innerHeight
-                this.settings.defaultFrameBorder = false
-            }
-            this.settings.frameWidth = settings.defaultFrameHeight;
-            this.settings.frameHeight = settings.defaultFrameWidth;
-
-        }
-
         this.settings.frameBorder = this.settings.defaultFrameBorder;
         this.locationSet = this.prepareLocationSet(locations)
         this.currentLocation = this.setLocation(settings.defaultLocation)

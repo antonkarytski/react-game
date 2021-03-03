@@ -1,15 +1,18 @@
 import styled, {css, keyframes} from 'styled-components'
 
-const calculateSpeed = (speed, width) => {
-    return ((3 - Math.log(speed) / Math.log(50)) * width / 600).toFixed(2)
+const getScale=(width) =>{
+    if(width > 600) {
+        return 600/width
+    }
+    return 1
 }
 
-const move = (frameWidth) => keyframes`
+const move = (frameWidth, selfWidth) => keyframes`
   0%{
     left: ${frameWidth}px;
   }
   100%{
-    left: -100px;
+    left: -150px;
   }
 `
 const rotation = keyframes`
@@ -35,7 +38,7 @@ const animationRotate = css`
 ,${rotation} 0.4s linear infinite
 `
 const animationMove = css`
-${props => move(props.frameWidth)} ${props => calculateSpeed(props.speed, props.frameWidth)}s linear
+${props => move(props.frameWidth, props.width)} ${props => props.frameWidth/props.speed * getScale(props.frameWidth)}s linear
 `
 const animationSet = css`
 animation: ${animationMove}${props => props.effect === "rotate" ? animationRotate : null}
@@ -48,7 +51,6 @@ export default styled.div`
   height: ${props => props.compStyle.h}px;
   bottom: ${props => props.compStyle.altitude}px;
   position: absolute;
-  //animation: ${props => move(props.frameWidth)} ${props => calculateSpeed(props.speed, props.frameWidth)}s linear;
   ${animationSet};
   left: -100px;
   z-index: 19;
