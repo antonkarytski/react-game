@@ -192,6 +192,9 @@ export const LOCATIONS = [
             bgNaturalWidth: 6935,
             bgNaturalHeight: 763,
             bgImage: 'bg-common2.jpg',
+            bgNaturalMobileWidth: 2800,
+            bgNaturalMobileHeight: 763,
+            bgMobileImage: 'bg-common.jpg',
             effects: "disco"
         }
     },

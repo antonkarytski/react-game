@@ -27,11 +27,13 @@ export const SETTINGS = {
     defaultLocationPreview : 'preview.jpg',
     defaultLocationBgSound : 'bgmusic.mp3',
     defaultLocationBgImage : "bg-common.jpg",
+    defaultLocationsMobileBgImage: "bg-common-mobile.jpg",
     locationPrototype: {
         bottom: 0,
         bgImage: true,
+        bgMobileImage: false,
         bgMusic: false,
-        effects: false
+        effects: false,
     },
 
     obstacleFolder: 'obstacles',
