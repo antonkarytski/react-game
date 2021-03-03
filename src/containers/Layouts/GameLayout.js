@@ -86,6 +86,7 @@ const GameLayout = (props) => {
         const newObstacle = gameHelper.getRandomObstacle()
         newObstacle.position = gameHelper.settings.frameWidth // set start position
         newObstacle.speed = gameHelper.settings.speedFunction(gameHelper.settings.baseSpeed, obstaclesState.count)
+        newObstacle.speed = newObstacle.speed * newObstacle.speedK
         if (newObstacle.randomHeight)
             newObstacle.height = newObstacle.height - newObstacle.height * Math.random() * newObstacle.randomHeight
         if (newObstacle.randomWidth)

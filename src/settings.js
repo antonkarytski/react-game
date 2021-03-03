@@ -50,7 +50,8 @@ export const SETTINGS = {
         sizeCorrection: 0,
         randomWidth: 0,
         randomHeight: 0,
-        effect: false
+        effect: false,
+        speedK : 1,
     },
 
     heroFolder: 'chars',
@@ -78,6 +79,6 @@ export const SETTINGS = {
         spriteRunSteps: 3,
         spriteSitSteps: 3,
         sizeCorrection: 0,
-        sizeSitCorrection: 0
+        sizeSitCorrection: 0,
     },
 }

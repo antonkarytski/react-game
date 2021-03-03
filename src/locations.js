@@ -69,6 +69,7 @@ export const LOCATIONS = [
                     right: 0.05,
                     bottom: 0,
                 },
+                speedK: 0.9
             },
             {
                 type: "avtozak",
@@ -83,6 +84,7 @@ export const LOCATIONS = [
                     right: 0.1,
                     bottom: 0,
                 },
+                speedK: 1.2
             },
             {
                 type: "waterzak",
@@ -97,7 +99,27 @@ export const LOCATIONS = [
                     right: 0.05,
                     bottom: 0,
                 },
-            }
+                speedK: 1.1
+            },
+            {
+                type: "balloon",
+                label: "Воздушный шар",
+                weight: 0.8,
+                width: 50,
+                height: 98.5,
+                altitude: [25, 175],
+                effect: {
+                    name: "altitude",
+                    altitude: [50, -25],
+                },
+                sizeCorrection: {
+                    top: 0,
+                    left: 0.05,
+                    right: 0.05,
+                    bottom: 0.45,
+                },
+                speedK: 0.65
+            },
 
         ],
 
@@ -167,7 +189,8 @@ export const LOCATIONS = [
                 width: 57,
                 height: 21,
                 altitude: [25, 175],
-                effect: "rotate"
+                effect: {name: "rotate"},
+                speedK: 1.25
             },
             {
                 type: "putin",
