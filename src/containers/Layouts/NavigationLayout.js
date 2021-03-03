@@ -62,7 +62,6 @@ const NavigationLayout = (props) => {
                 valueToggled={faCompressArrowsAlt}
                 faIcon={true}
                 toggled={!fullScreen}
-                condition={!gameState.lose}
             />
         </div>
     )

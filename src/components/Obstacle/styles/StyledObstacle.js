@@ -12,7 +12,7 @@ const move = (frameWidth) => keyframes`
     left: ${frameWidth}px;
   }
   100%{
-    left: -150px;
+    left: -200px;
   }
 `
 const rotation = keyframes`
@@ -38,7 +38,7 @@ const animationRotate = css`
 ,${rotation} 0.4s linear infinite
 `
 const animationMove = css`
-${props => move(props.frameWidth)} ${props => props.frameWidth/props.selfSpeed * getScale(props.frameWidth)}s linear
+${props => move(props.frameWidth)} ${props => props.frameWidth/props.selfSpeed * getScale(props.frameWidth) + 0.3}s linear
 `
 const animationSet = css`
 animation: ${animationMove}${props => props.effect === "rotate" ? animationRotate : null}

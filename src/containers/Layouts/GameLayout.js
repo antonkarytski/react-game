@@ -108,7 +108,7 @@ const GameLayout = (props) => {
                 const obstacleDom = selfRef.current.querySelector(`[data-index = "${index}"]`)
                 const heroDom = selfRef.current.querySelector('#hero')
                 const obstacleRelPosition = getRelPosition(obstacleDom.getBoundingClientRect());
-                if (obstacleRelPosition.left <= -130) {
+                if (obstacleRelPosition.left <= -150) {
                     obstacle.display = false;
                     changesFlag = true;
                 } else {
@@ -151,11 +151,16 @@ const GameLayout = (props) => {
     if (relatedWidth < gameHelper.settings.frameWidth) {
         relatedWidth = gameHelper.settings.frameWidth
     }
-    const bgTime = relatedWidth / gameHelper.settings.frameWidth * 3
+
+    const divider = gameHelper.settings.frameWidth < gameHelper.settings.frameHeight?
+        gameHelper.settings.frameHeight : gameHelper.settings.frameWidth
+    const bgTime = relatedWidth / divider * 3
 
     const selfStyle = {
         backgroundImage: `url(${process.env.PUBLIC_URL + "/" + environment.bgImage})`,
-    }
+        backgroundSize: `${relatedWidth}px ${gameHelper.settings.frameHeight}px`,
+        backgroundAttachment: 'initial',
+}
 
     const effectStyle = {}
     if (gameOnPause) {
