@@ -4,6 +4,7 @@ import classesCss from './styles/Layouts.module.scss'
 import Button from "../../components/Navigation/Buttons/Button";
 import ResetButton from "../../components/Navigation/Buttons/ResetButton";
 import SoundRangeSlider from "../../components/Navigation/RangeSlider/SoundRangeSlider";
+import RangeSlider from "../../components/Navigation/RangeSlider/RangeSlider";
 import StatisticMenu from "../../components/Navigation/Menu/StatisticMenu"
 import PickMenu from "../../components/Navigation/Menu/PickMenu/PickMenu";
 import InfoLayout from "./InfoLayout";
@@ -67,6 +68,18 @@ function MenuLayout(props) {
                                 soundMuted={sound.muted}
                                 onChange={sound.onSoundVolumeChange}
                             />
+                            <div>
+                                <span>SPEED </span>
+                                <RangeSlider
+                                    initValue={game.state.difficult}
+                                    onChange={game.difficultChangeHandler}
+                                    min = {1}
+                                    max = {4}
+                                    step = {1}
+                                />
+
+                            </div>
+
                             <Button
                                 onClick={() => setMenuMode("heroSelect")}
                                 className={classesCss.SelectButton}

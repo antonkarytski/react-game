@@ -1,7 +1,18 @@
 import styled, {css, keyframes} from 'styled-components'
 
+//TODO: create style components
+// Example:
+//     const Component = styled.div.attrs(props => ({
+//             style: {
+//                 background: props.background,
+//             },
+//         }))`width: 100%;`
+//
+//         <Component />
 
-const getScale=(width) =>{
+
+
+function getScale(width){
     if(width > 600) {
         return 600/width
     }
@@ -16,9 +27,9 @@ const move = (frameWidth) => keyframes`
     left: -200px;
   }
 `
-const rotation = keyframes`
+const rotation = (direction) => keyframes`
   100%{
-    transform: rotate(-360deg);
+    transform: rotate(${direction? direction * 360 : (-1) * 360}deg);
   }
 `
 
@@ -48,7 +59,7 @@ const backgroundSize = css`
 `
 
 const animationRotate = css`
-,${rotation} 0.4s linear infinite
+,${props => rotation(props.effect.direction)} ${props => props.effect.speed? props.effect.speed : 0.4}s linear infinite
 `
 
 const animationAltitude = css`

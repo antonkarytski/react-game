@@ -16,7 +16,8 @@ const GameLayout = (props) => {
         gameOnPause,
         environment,
         soundVolume,
-        soundMuted
+        soundMuted,
+        difficult
     } = props
 
     const stackSize = 8;
@@ -86,7 +87,19 @@ const GameLayout = (props) => {
         const newObstacle = gameHelper.getRandomObstacle()
         newObstacle.position = gameHelper.settings.frameWidth // set start position
         newObstacle.speed = gameHelper.settings.speedFunction(gameHelper.settings.baseSpeed, obstaclesState.count)
-        newObstacle.speed = newObstacle.speed * newObstacle.speedK
+        newObstacle.speed = newObstacle.speed * newObstacle.speedK * difficult / 2
+        if(newObstacle.effect?.name === "rotate"){
+            newObstacle.effect = Object.assign({},newObstacle.effect)
+            if(newObstacle.effect.speed){
+                const rotateSpeed = newObstacle.effect.speed;
+                if(Array.isArray(rotateSpeed))
+                    newObstacle.effect.speed = rotateSpeed[0] + Math.random() * (rotateSpeed[1] - rotateSpeed[0])
+                else newObstacle.effect.speed = rotateSpeed
+            } else newObstacle.effect.speed = false
+            if(newObstacle.effect.direction === "rand"){
+                newObstacle.effect.direction = Math.random() < 0.5 ? 1 : -1
+            }
+        }
         if (newObstacle.randomHeight)
             newObstacle.height = newObstacle.height - newObstacle.height * Math.random() * newObstacle.randomHeight
         if (newObstacle.randomWidth)

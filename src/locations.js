@@ -8,6 +8,7 @@ export const LOCATIONS = [
             {
                 name: "nina",
                 label: "Нина",
+                soundJump: false,
                 sizes: {
                     default: {
                         w: 96,
@@ -149,6 +150,7 @@ export const LOCATIONS = [
             {
                 name: "navalny",
                 label: "Леша Навальный",
+                soundJump: true,
                 sizes: {
                     default: {
                         w: 60,
@@ -209,6 +211,26 @@ export const LOCATIONS = [
                 },
                 randomWidth: 1.8,
                 randomHeight: 0.3
+            },
+            {
+                type: "putin2",
+                label: "Путин 2",
+                weight: 0.5,
+                width: 92,
+                height: 130,
+                altitude: [65, 200],
+                sprite: 'sprite.gif',
+                sizeCorrection: {
+                    top: 0.08,
+                    left: 0.33,
+                    right: 0.33,
+                    bottom: 0.20,
+                },
+                effect: {
+                    name: "rotate",
+                    speed: [0.1, 7],
+                    direction: 'rand'
+                },
             },
         ],
 

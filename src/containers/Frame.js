@@ -32,6 +32,7 @@ const Frame = ({gameHelper, windowSize}) => {
 
     const savedSoundMuted = Boolean(getSavedNumberVal("soundMuted", 0))
     const savedSoundVolume = getSavedNumberVal("soundVolume", 50)
+    const savedGameDifficult = getSavedNumberVal("gameDifficult", 2)
     const savedHeroIndex = getSavedNumberVal("hero", 0)
     const savedLocation = getSavedNumberVal("location", gameHelper.settings.defaultLocation)
 
@@ -45,7 +46,8 @@ const Frame = ({gameHelper, windowSize}) => {
         set: 1,
         init: true,
         infoMenuOpened: false,
-        gameStartTime: new Date()
+        gameStartTime: new Date(),
+        difficult: savedGameDifficult
     })
 
     const [hero, setHero] = useState({
@@ -130,6 +132,12 @@ const Frame = ({gameHelper, windowSize}) => {
         })
     }
 
+    const gameDifficultChangeHandler = (value) => {
+        updateGameState({
+            difficult: value
+        })
+        localStorage.setItem("gameDifficult", value)
+    }
 
 
     const pauseToggleHandler = (flag = false) => {
@@ -328,8 +336,8 @@ const Frame = ({gameHelper, windowSize}) => {
                     soundVolume={soundState.volume}
                     soundMuted={soundState.muted}
                     key={gameState.set}
+                    difficult = {gameState.difficult}
                     gameOnPause={gameState.pause}
-                    startTime={gameState.gameStartTime}
                     onPauseToggle={pauseToggleHandler}
                     char={hero.item}
                     gameHelper={gameHelper}
@@ -375,7 +383,8 @@ const Frame = ({gameHelper, windowSize}) => {
                         game={{
                             state: gameState,
                             onResetGame: resetGame,
-                            onPauseToggle: pauseToggleHandler
+                            onPauseToggle: pauseToggleHandler,
+                            difficultChangeHandler: gameDifficultChangeHandler
                         }}
                     />
                     : null}
