@@ -31,11 +31,11 @@ const GameLayout = (props) => {
 
     const minTime = gameHelper.settings.minTimeDecreaseFunction(
         gameHelper.settings.generationMinTime,
-        obstaclesState.count)
+        obstaclesState.count + difficult<3 ? 0 : difficult/2 * 90)
 
     const maxTime = gameHelper.settings.maxTimeDecreaseFunction(
         gameHelper.settings.generationMaxTime,
-        obstaclesState.count)
+        obstaclesState.count + difficult<3 ? 0 : difficult/2 * 180)
 
     function getRelPosition(objPosition) {
         const windowDomRect = selfRef.current.getBoundingClientRect();

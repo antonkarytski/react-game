@@ -1,5 +1,4 @@
 import React from 'react'
-import './styles/styles.scss';
 import Frame from "./containers/Frame";
 import {LOCATIONS} from "./locations";
 import {SETTINGS} from "./settings";
