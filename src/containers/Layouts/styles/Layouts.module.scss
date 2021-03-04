@@ -214,6 +214,10 @@
   height: 70%!important;
 }
 
+.SpeedButton{
+  display: flex;
+}
+
 @keyframes rotation {
   from {
     transform: rotate(0deg);

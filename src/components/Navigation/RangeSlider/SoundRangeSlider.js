@@ -1,6 +1,6 @@
 import React from 'react'
 import SoundButton from "../Buttons/SoundButton";
-import classesCss from "./SoundRangeSlider.module.scss"
+import classesCss from "./RangeSlider.module.scss"
 import RangeSlider from './RangeSlider'
 
 export default function SoundRangeSlider({onChange, onSoundToggle, soundMuted, initValue}) {

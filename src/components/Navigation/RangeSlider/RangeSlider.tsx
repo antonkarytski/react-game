@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import classesCss from './RangeSlider.module.scss'
 
 type RangeSliderProps = {
     initValue: number
@@ -32,6 +33,7 @@ const RangeSlider: React.FC<RangeSliderProps> = (props) => {
                 onChange={changeHandler}
                 onMouseUp={() => onChange(value)}
                 onTouchEnd={() => onChange(value)}
+                className={classesCss.RangeSlider}
             />)
 }
 

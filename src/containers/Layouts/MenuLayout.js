@@ -68,7 +68,7 @@ function MenuLayout(props) {
                                 soundMuted={sound.muted}
                                 onChange={sound.onSoundVolumeChange}
                             />
-                            <div>
+                            <div className={classesCss.SpeedButton}>
                                 <span>SPEED </span>
                                 <RangeSlider
                                     initValue={game.state.difficult}
@@ -77,7 +77,6 @@ function MenuLayout(props) {
                                     max = {4}
                                     step = {1}
                                 />
-
                             </div>
 
                             <Button
