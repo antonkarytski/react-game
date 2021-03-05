@@ -269,6 +269,30 @@ export const LOCATIONS = [
                 spriteRunPositions: [{x: 0, y: 0}, {x: 139, y: 0}],
                 spriteRunSteps: 3,
                 spriteSitPositions: [{x: 140, y: 10}, {x: 295, y: 10}],
+            },
+            {
+                name: "man",
+                label: "Man 1",
+                soundJump: false,
+                sizes: {
+                    default: {
+                        w: 74,
+                        h: 91
+                    },
+                    sit: {
+                        w: 92,
+                        h: 74
+                    }
+                },
+                spriteRunPositions: [{x: 0, y: 0}, {x: 308, y: 0}],
+                spriteRunSteps: 3,
+                spriteSitPositions: [{x: 0, y: 100}, {x: 279, y: 100}],
+                sizeCorrection: {
+                    top: 0,
+                    left: 0,
+                    right: 0.1,
+                    bottom: 0,
+                },
             }
         ],
 
@@ -281,6 +305,12 @@ export const LOCATIONS = [
                 height: 46,
                 altitude: 0,
                 sprite: true,
+                sizeCorrection: {
+                    top: 0.1,
+                    left: 0.1,
+                    right: 0.1,
+                    bottom: 0.1,
+                },
             },
             {
                 type: "monster-2",
@@ -290,6 +320,12 @@ export const LOCATIONS = [
                 height: 35,
                 altitude: [10, 60],
                 sprite: true,
+                sizeCorrection: {
+                    top: 0.1,
+                    left: 0.1,
+                    right: 0.1,
+                    bottom: 0.1,
+                },
             }
         ],
 
