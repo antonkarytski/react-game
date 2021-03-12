@@ -1,25 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import Frame from "./containers/Frame";
+import {LOCATIONS} from "./locations";
+import {SETTINGS} from "./settings";
+import gameHelperClass from "./gameHelper";
+import StyledApp from "./styles/StyledApp";
+import useWindowSize from "./hooks/useWindowSize";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const gameHelper = new gameHelperClass(SETTINGS, LOCATIONS)
+
+const App = () => {
+
+    const windowSize = useWindowSize()
+
+
+
+    return (
+        <StyledApp>
+            <Frame
+                gameHelper={gameHelper}
+                windowSize = {windowSize}
+            />
+        </StyledApp>
+    );
 }
 
 export default App;
