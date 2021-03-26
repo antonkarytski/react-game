@@ -1,10 +1,10 @@
-import React, {useRef, useState} from 'react'
-import classes from './styles/Layouts.module.scss'
-import Hero from '../../components/Hero/Hero';
-import Obstacle from '../../components/Obstacle/Obstacle';
-import StyledGame, {StyledLayer} from "./styles/StyledGame";
-import useTimerGenerator from "../../hooks/useTimerGenerator";
-import useTimer from "../../hooks/useTimer";
+import React, { useRef, useState } from "react"
+import classes from "./styles/Layouts.module.scss"
+import Hero from "../../components/Hero/Hero"
+import Obstacle from "../../components/Obstacle/Obstacle"
+import StyledGame, { StyledLayer } from "./styles/StyledGame"
+import useTimerGenerator from "../../hooks/useTimerGenerator"
+import useTimer from "../../hooks/useTimer"
 
 
 const GameLayout = (props) => {
@@ -192,6 +192,7 @@ const GameLayout = (props) => {
             gameEffects = null
             break
     }
+
 
 
     return (
