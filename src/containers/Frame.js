@@ -1,11 +1,11 @@
-import React, {useEffect, useRef, useState} from 'react'
-import Audio from "../components/Helpres/Audio";
-import GameLayout from "./Layouts/GameLayout";
-import NavigationLayout from "./Layouts/NavigationLayout";
-import MenuLayout from "./Layouts/MenuLayout";
-import classesCss from './Frame.module.scss'
-import useUnshiftKeyPress from "../hooks/useUnshiftKeyPress";
-
+import React, { useEffect, useRef, useState } from "react"
+import Audio from "../components/Helpres/Audio"
+import GameLayout from "./Layouts/GameLayout"
+import NavigationLayout from "./Layouts/NavigationLayout"
+import MenuLayout from "./Layouts/MenuLayout"
+import classesCss from "./Frame.module.scss"
+import useUnshiftKeyPress from "../hooks/useUnshiftKeyPress"
+import { useParams } from "react-router"
 
 /*
 
@@ -30,11 +30,23 @@ const Frame = ({gameHelper, windowSize}) => {
     //Init saved in local storage values
     //
 
-    const savedSoundMuted = Boolean(getSavedNumberVal("soundMuted", 0))
+    const savedSoundMuted = !!getSavedNumberVal("soundMuted", 0)
     const savedSoundVolume = getSavedNumberVal("soundVolume", 50)
     const savedGameDifficult = getSavedNumberVal("gameDifficult", 2)
-    const savedHeroIndex = getSavedNumberVal("hero", 0)
-    const savedLocation = getSavedNumberVal("location", gameHelper.settings.defaultLocation)
+
+    const {game} = useParams()
+
+    let initLocation
+    let savedHeroIndex
+
+    if(game && gameHelper.findLocation(game) > -1){
+        initLocation = game
+        savedHeroIndex = 0
+    } else {
+        initLocation = parseLocation(gameHelper.settings.defaultLocation)
+        savedHeroIndex = getSavedNumberVal("hero", 0)
+    }
+
 
     //
     //Init hooks vars
@@ -60,12 +72,12 @@ const Frame = ({gameHelper, windowSize}) => {
         volume: savedSoundVolume
     })
 
-    if (gameState.init && gameHelper.currenLocationIndex !== savedLocation) {
-        gameHelper.setLocation(savedLocation)
+    if (gameState.init && gameHelper.currenLocationIndex !== initLocation) {
+        gameHelper.setLocation(initLocation)
     }
 
     const [locationData, setLocationData] = useState({
-        index: savedLocation,
+        index: initLocation,
         heroes: gameHelper.heroes,
         environment: gameHelper.environment,
     })
@@ -91,6 +103,13 @@ const Frame = ({gameHelper, windowSize}) => {
     //Handlers
     //
 
+
+    function parseLocation(defaultVal){
+       const savedLocation = localStorage.getItem("location") ?? defaultVal
+        if(!isNaN(Number(savedLocation))) return Number(savedLocation)
+        return savedLocation
+    }
+
     function includeScoreSet(currentScoreString, score){
         if (currentScoreString) {
             const scoreHistorySet = currentScoreString.split(",")
@@ -108,6 +127,7 @@ const Frame = ({gameHelper, windowSize}) => {
     function getSavedNumberVal(val, defaultVal) {
         return Number(localStorage.getItem(val) || defaultVal)
     }
+
 
     function getMusic(selector) {
         return gameFrame.current.querySelector(`audio#${selector}`)

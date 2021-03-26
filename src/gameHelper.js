@@ -10,8 +10,8 @@ export default class gameHelperClass{
     pathToLocation;
 
     constructor(settings, locations){
-        this.settings = Object.assign({},settings)
-        this.locations = Object.assign({},locations)
+        this.settings = {...settings}
+        this.locations = {...locations}
         this.settings.frameBorder = this.settings.defaultFrameBorder;
         this.locationSet = this.prepareLocationSet(locations)
         this.currentLocation = this.setLocation(settings.defaultLocation)
@@ -22,13 +22,10 @@ export default class gameHelperClass{
     //Prepare All objects for using in app, so when user change location all objects re-preparing
 
     setLocation(locationName = this.settings.defaultLocation || 0){
-        if(typeof locationName === "string"){
-            locationName = this.locations.findIndex((location) => {
-                return location.name === locationName
-            })
-        }
-        this.currentLocation = this.locations[locationName];
-        this.currenLocationIndex = locationName
+        let locationIndex = this.findLocation(locationName)
+        if(locationIndex === -1) locationIndex = 0
+        this.currentLocation = this.locations[locationIndex];
+        this.currenLocationIndex = locationIndex
         this.pathToLocation = this.settings.pathToAssets + "/" + this.currentLocation.name
         this.obstacleWeights = this.setWeights(this.currentLocation.obstacles)
         this.obstacles = this.prepareObstacleSet(this.currentLocation.obstacles)
@@ -36,6 +33,20 @@ export default class gameHelperClass{
         this.heroes = this.prepareHeroSet(this.currentLocation.heroes)
         this.environment = this.prepareEnvironment(this.currentLocation.environment)
         return this.currentLocation
+    }
+
+    findLocation(index){
+        if(typeof index === "string"){
+            for(let locationIndex in this.locations){
+                if(this.locations[locationIndex].name === index){
+                    return locationIndex
+                }
+            }
+            return -1
+        } else if(this.locations.length-1 < index){
+            return -1
+        }
+        return index
     }
 
     setWeights(options = this.currentLocation.obstacles) {

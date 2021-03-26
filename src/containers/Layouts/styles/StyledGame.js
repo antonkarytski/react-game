@@ -1,11 +1,4 @@
-import styled, {keyframes} from 'styled-components'
-
-const getScale=(width) =>{
-    if(width > 600) {
-        return 600/width
-    }
-    return 1
-}
+import styled, { keyframes } from "styled-components"
 
 const bgMove = (width) => keyframes`
   0%{
