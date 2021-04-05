@@ -2,4 +2,4 @@
 
 Deploy: [https://react-game-navalny.herokuapp.com/](url)
 
-Used stacktechnologies: JS, React.js (styled-components), Scss
+Used technologies: JS, React.js (styled-components), Scss
