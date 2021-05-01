@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { forwardRef } from "react";
 
-export default function Audio({src, id, loop}) {
+const Audio = forwardRef(({ src, loop }, ref) => {
+  return (
+    <audio ref={ref} preload={"auto"} loop={loop || false}>
+      <source src={process.env.PUBLIC_URL + src} type={"audio/mp3"} />
+    </audio>
+  );
+});
 
-    return (
-        <audio id={id} preload={"auto"} loop={loop || false}>
-            <source src={process.env.PUBLIC_URL + src} type={"audio/mp3"} />
-        </audio>
-    )
-}
+export default Audio;
