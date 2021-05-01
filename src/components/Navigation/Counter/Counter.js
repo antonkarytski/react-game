@@ -1,60 +1,24 @@
-import React, { useEffect, useState } from "react";
-import useTimer from "../../../hooks/useTimer";
-import classesCss from "./Counter.module.scss";
+import React from "react";
+import cx from "classnames";
+import classes from "./Counter.module.scss";
+import { useCounter } from "../../../hooks/hook.counter";
 
-const Counter = (props) => {
-  const { bestScore, startTime, condition, id, className } = props;
+const Counter = ({ bestScore, condition, className, controllerRef }) => {
+  const [value, resetCounter] = useCounter(10, condition);
 
-  const [state, setState] = useState({
-    score: 0,
-    prevTime: startTime,
-  });
-
-  const classes = [classesCss.Counter];
-  classes.push(className);
-
-  useTimer(
-    () => {
-      const currentTime = new Date();
-      setState({
-        score: Math.floor((currentTime - state.prevTime) / 40) + state.score,
-        prevTime: currentTime,
-      });
-    },
-    40,
-    !condition,
-    condition,
-    state.score
-  );
-
-  useTimer(
-    () => {
-      const currentTime = new Date();
-      setState({
-        score: state.score,
-        prevTime: currentTime,
-      });
-    },
-    40,
-    condition,
-    condition
-  );
-
-  useEffect(() => {
-    setState({
-      score: 0,
-      prevTime: startTime,
-    });
-  }, [startTime]);
+  controllerRef.current = {
+    value,
+    resetCounter,
+  };
 
   return (
-    <div id={id} data-score={state.score} className={classes.join(" ")}>
-      <span className={classesCss.BestScore}>
+    <div className={cx(classes.Counter, className)}>
+      <span className={classes.BestScore}>
         {"0".repeat(8 - (bestScore + "").length) + bestScore}
       </span>
       \
-      <span className={classesCss.CurrentScore}>
-        {"0".repeat(8 - (state.score + "").length) + state.score}
+      <span className={classes.CurrentScore}>
+        {"0".repeat(8 - (value + "").length) + value}
       </span>
     </div>
   );

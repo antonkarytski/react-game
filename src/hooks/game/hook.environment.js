@@ -7,36 +7,22 @@ import { useHero } from "./hook.hero";
 
 export function useGameEnvironment() {
   const [location, setLocation] = useGameLocation();
-  const {
-    setEnvironment,
-    getHero,
-    ...environmentInterface
-  } = useLocationEnvironment(location);
-  const [hero, setHero] = useHero(getHero);
+  const { environment, getRandomObstacle } = useLocationEnvironment(location);
 
-  useEffect(() => {
-    setEnvironment(location);
-    setHero(0);
-  }, [location, setEnvironment, setHero]);
+  const [hero, setHero] = useHero(environment);
 
   return {
+    environment,
     location,
     setLocation,
     hero,
     setHero,
-    ...environmentInterface,
+    getRandomObstacle,
   };
 }
 
-export function useLocationEnvironment(initialLocation = DEFAULTS.location) {
-  const [environment, setEnvironment] = useState(LOCATIONS[initialLocation]);
-
-  function getHero(heroIndex) {
-    const { heroes } = environment;
-    return typeof heroIndex === "number"
-      ? heroes[heroIndex]
-      : heroes[heroes.map(({ name }) => name).indexOf(heroIndex)];
-  }
+export function useLocationEnvironment(location = DEFAULTS.location) {
+  const [environment, setEnvironment] = useState(LOCATIONS[location]);
 
   function getRandomObstacle() {
     const { obstaclesWeights, obstacles } = environment;
@@ -48,14 +34,7 @@ export function useLocationEnvironment(initialLocation = DEFAULTS.location) {
     }
   }
 
-  function updateEnvironment(index) {
-    setEnvironment(LOCATIONS[index]);
-  }
+  useEffect(() => setEnvironment(LOCATIONS[location]), [location]);
 
-  return {
-    environment,
-    setEnvironment: updateEnvironment,
-    getHero,
-    getRandomObstacle,
-  };
+  return { environment, getRandomObstacle };
 }

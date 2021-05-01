@@ -22,13 +22,11 @@ const NavigationLayout = (props) => {
     fullScreenToggle,
     infoMenuToggle,
     bestScore,
-    counterId,
+    counterRef,
   } = props;
 
   const dispatch = useDispatch();
-  const { isPause, isLose, gameStartTime, isInfoMenuOpened } = useSelector(
-    ({ game }) => game
-  );
+  const { isPause, isLose, isInfoMenuOpened } = useSelector(({ game }) => game);
 
   return (
     <div className={classes.NavigationLayout}>
@@ -48,11 +46,9 @@ const NavigationLayout = (props) => {
       />
 
       <Counter
-        className={"counter"}
         bestScore={bestScore}
-        startTime={gameStartTime}
-        condition={isPause}
-        id={counterId}
+        condition={!isPause}
+        controllerRef={counterRef}
       />
 
       <Button

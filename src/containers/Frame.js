@@ -13,6 +13,7 @@ import { useFrameSizeStyle } from "../hooks/game/hook.frameSize";
 import { LOCATIONS_MENU_SET } from "../settings/locations";
 import { useDispatch, useSelector } from "react-redux";
 import { resetGame, togglePause, updateGameKey } from "../redux/actions.game";
+import { STORAGE_SCORE_HISTORY } from "../settings/consts";
 
 export default function Frame() {
   const {
@@ -26,10 +27,13 @@ export default function Frame() {
   const gameFrame = useRef(null);
   const gameState = useSelector(({ game }) => game);
   const dispatch = useDispatch();
+  const counterInterface = useRef(null);
 
   const [fullScreenState, toggleFullScreenState] = useFullScreen(
     gameFrame.current
   );
+
+  const { isLose } = useSelector(({ game }) => game);
 
   const {
     location,
@@ -40,38 +44,15 @@ export default function Frame() {
     getRandomObstacle,
   } = useGameEnvironment();
 
-  function getScore() {
-    return gameFrame.current.querySelector("#score-counter").dataset.score;
-  }
-
-  function includeScoreSet(currentScoreString, score) {
-    if (currentScoreString) {
-      const scoreHistorySet = currentScoreString.split(",");
-      if (scoreHistorySet.length >= 10) scoreHistorySet.splice(9, 1);
-      scoreHistorySet.splice(0, 0, score + "");
-      return scoreHistorySet.join(",");
-    }
-    return score + "";
-  }
-
   const locationSelectHandler = (index) => {
     setLocation(index);
     dispatch(updateGameKey());
   };
 
   const pauseToggleHandler = (loseFlag) => {
-    const score = getScore();
-
+    const { value: score } = counterInterface.current;
     if (score > getSavedNumberVal("bestScore", 0)) {
       localStorage.setItem("bestScore", score + "");
-    }
-
-    if (loseFlag) {
-      const newScoreString = includeScoreSet(
-        localStorage.getItem("scoreHistory"),
-        score
-      );
-      localStorage.setItem("scoreHistory", newScoreString);
     }
 
     dispatch(togglePause(!!loseFlag));
@@ -107,6 +88,28 @@ export default function Frame() {
     }
   }, [location, environment.environment.bgMusic, reloadSound]);
 
+  useEffect(() => {
+    if (!isLose) return;
+    const { value: score } = counterInterface.current;
+    const currentScoreHistory = localStorage.getItem(STORAGE_SCORE_HISTORY);
+    if (currentScoreHistory) {
+      const currentScoreHistoryData = JSON.parse(currentScoreHistory);
+      if (currentScoreHistoryData.length >= 10) {
+        currentScoreHistoryData.unshift(score);
+        currentScoreHistoryData.pop();
+      } else {
+        currentScoreHistoryData.push(score);
+      }
+      localStorage.setItem(
+        STORAGE_SCORE_HISTORY,
+        JSON.stringify(currentScoreHistoryData)
+      );
+    } else {
+      localStorage.setItem(STORAGE_SCORE_HISTORY, JSON.stringify([score]));
+    }
+    console.log(localStorage.getItem(STORAGE_SCORE_HISTORY));
+  }, [isLose]);
+
   const style = useFrameSizeStyle({ border: "1px solid black" });
 
   return (
@@ -121,13 +124,13 @@ export default function Frame() {
           />
         ) : null}
         <NavigationLayout
-          counterId={"score-counter"}
           bestScore={getSavedNumberVal("bestScore", 0)}
           fullScreen={fullScreenState}
           fullScreenToggle={toggleFullScreenState}
           onPauseToggle={pauseToggleHandler}
           soundMuted={soundState.muted}
           onSoundToggle={toggleMute}
+          counterRef={counterInterface}
         />
         {gameState.isPause ? (
           <MenuLayout
