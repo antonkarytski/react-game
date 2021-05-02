@@ -7,21 +7,23 @@ import useTimerGenerator from "../../hooks/useTimerGenerator";
 import useTimer from "../../hooks/useTimer";
 import { MAX_TIME_DECREASE, MIN_TIME_DECREASE, SPEED_FUNCTION } from "../../settings/gameControllers";
 import { GAME_PROCESS } from "../../settings/gameSettings";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { togglePause } from "../../redux/actions.game";
+import { useFrameSize } from "../../hooks/game/hook.frameSize";
 
 export default function GameLayout(props) {
   const {
     char,
-    onPauseToggle,
     environment,
     soundVolume,
     soundMuted,
     getRandomObstacle,
-    frameWidth,
-    frameHeight,
   } = props;
 
+  const { width: frameWidth, height: frameHeight } = useFrameSize();
+
   const { isPause, difficulty } = useSelector(({ game }) => game);
+  const dispatch = useDispatch();
 
   const stackSize = 8;
   const [obstaclesState, setObstaclesState] = useState({
@@ -180,7 +182,7 @@ export default function GameLayout(props) {
                   obstacleSizeCorrection,
                 ])
               ) {
-                onPauseToggle(true);
+                dispatch(togglePause(true));
                 changesFlag = true;
               }
             }

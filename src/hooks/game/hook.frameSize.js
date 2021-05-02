@@ -25,8 +25,8 @@ export function useFrameSizeStyle({ border }) {
     (height >= DEFAULTS.frameHeight && width >= height);
 
   const style = {
-    width,
-    height,
+    width: `${width}px`,
+    height: `${height}px`,
   };
   if (isShowFrameBorder) style.border = border;
   return style;

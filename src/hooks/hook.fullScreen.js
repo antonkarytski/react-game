@@ -24,6 +24,7 @@ export function useFullScreen(frameRef) {
   }
 
   function toggleFullScreen() {
+    console.log(frameRef);
     if (fullScreenState) {
       cancelFullscreen();
     } else {

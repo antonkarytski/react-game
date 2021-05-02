@@ -2,18 +2,18 @@ import React, { useEffect, useRef } from "react";
 import Audio from "../components/Helpres/Audio";
 import GameLayout from "./Layouts/GameLayout";
 import NavigationLayout from "./Layouts/NavigationLayout";
-import MenuLayout from "./Layouts/MenuLayout";
+import MenuLayout from "./Layouts/MenuLayout/MenuLayout";
 import classesCss from "./Frame.module.scss";
-import useUnshiftKeyPress from "../hooks/useUnshiftKeyPress";
+import { useUnshiftKeyPress } from "../hooks/hook.keyPress";
 import { getSavedNumberVal } from "../helpers/localStorage";
-import { useFullScreen } from "../hooks/hook.fullScreen";
 import { useGameAudio } from "../hooks/game/hook.sounds";
 import { useGameEnvironment } from "../hooks/game/hook.environment";
 import { useFrameSizeStyle } from "../hooks/game/hook.frameSize";
 import { LOCATIONS_MENU_SET } from "../settings/locations";
 import { useDispatch, useSelector } from "react-redux";
 import { resetGame, togglePause, updateGameKey } from "../redux/actions.game";
-import { STORAGE_SCORE_HISTORY } from "../settings/consts";
+import { useSaveToLocalStorage } from "../hooks/hook.localStorage";
+import { STORAGE_HERO } from "../settings/consts";
 
 export default function Frame() {
   const {
@@ -24,16 +24,11 @@ export default function Frame() {
     toggleMute,
   } = useGameAudio();
 
-  const gameFrame = useRef(null);
-  const gameState = useSelector(({ game }) => game);
   const dispatch = useDispatch();
-  const counterInterface = useRef(null);
 
-  const [fullScreenState, toggleFullScreenState] = useFullScreen(
-    gameFrame.current
-  );
+  const fullScreenElement = useRef(null);
 
-  const { isLose } = useSelector(({ game }) => game);
+  const { isLose, isPause, gameKey } = useSelector(({ game }) => game);
 
   const {
     location,
@@ -49,23 +44,10 @@ export default function Frame() {
     dispatch(updateGameKey());
   };
 
-  const pauseToggleHandler = (loseFlag) => {
-    const { value: score } = counterInterface.current;
-    if (score > getSavedNumberVal("bestScore", 0)) {
-      localStorage.setItem("bestScore", score + "");
-    }
-
-    dispatch(togglePause(!!loseFlag));
-
-    if (environment.environment.bgMusic) {
-      if (bgMusic.paused) bgMusic.play();
-    }
-  };
-
   const keyActionsMap = {
     SPACE: () => {
-      if (!gameState.isLose) {
-        pauseToggleHandler();
+      if (!isLose) {
+        dispatch(togglePause());
       } else {
         dispatch(resetGame());
       }
@@ -78,9 +60,7 @@ export default function Frame() {
   useUnshiftKeyPress(keyActionsMap.SPACE, "SPACE");
   useUnshiftKeyPress(keyActionsMap.m, "m");
 
-  useEffect(() => {
-    localStorage.setItem("hero", hero.index + "");
-  }, [hero]);
+  useSaveToLocalStorage(STORAGE_HERO, hero.index);
 
   useEffect(() => {
     if (environment.environment.bgMusic) {
@@ -89,31 +69,13 @@ export default function Frame() {
   }, [location, environment.environment.bgMusic, reloadSound]);
 
   useEffect(() => {
-    if (!isLose) return;
-    const { value: score } = counterInterface.current;
-    const currentScoreHistory = localStorage.getItem(STORAGE_SCORE_HISTORY);
-    if (currentScoreHistory) {
-      const currentScoreHistoryData = JSON.parse(currentScoreHistory);
-      if (currentScoreHistoryData.length >= 10) {
-        currentScoreHistoryData.unshift(score);
-        currentScoreHistoryData.pop();
-      } else {
-        currentScoreHistoryData.push(score);
-      }
-      localStorage.setItem(
-        STORAGE_SCORE_HISTORY,
-        JSON.stringify(currentScoreHistoryData)
-      );
-    } else {
-      localStorage.setItem(STORAGE_SCORE_HISTORY, JSON.stringify([score]));
-    }
-    console.log(localStorage.getItem(STORAGE_SCORE_HISTORY));
-  }, [isLose]);
+    if (environment.environment.bgMusic && bgMusic.paused) bgMusic.play();
+  }, [isPause, bgMusic, environment.environment.bgMusic]);
 
   const style = useFrameSizeStyle({ border: "1px solid black" });
 
   return (
-    <div className={classesCss.Wrap} ref={gameFrame}>
+    <div className={classesCss.Wrap} ref={fullScreenElement}>
       {style.border ? <div className={classesCss.Border} /> : null}
       <div className={classesCss.Frame} style={style}>
         {environment.environment?.bgMusic ? (
@@ -124,15 +86,11 @@ export default function Frame() {
           />
         ) : null}
         <NavigationLayout
-          bestScore={getSavedNumberVal("bestScore", 0)}
-          fullScreen={fullScreenState}
-          fullScreenToggle={toggleFullScreenState}
-          onPauseToggle={pauseToggleHandler}
+          fullScreenElement={fullScreenElement.current}
           soundMuted={soundState.muted}
           onSoundToggle={toggleMute}
-          counterRef={counterInterface}
         />
-        {gameState.isPause ? (
+        {isPause ? (
           <MenuLayout
             locationData={{
               itemSet: LOCATIONS_MENU_SET,
@@ -154,21 +112,15 @@ export default function Frame() {
               onSoundToggle: toggleMute,
               onSoundVolumeChange: setVolume,
             }}
-            game={{
-              onPauseToggle: pauseToggleHandler,
-            }}
           />
         ) : null}
         <GameLayout
           soundVolume={soundState.volume}
           soundMuted={soundState.muted}
-          key={gameState.gameKey}
-          onPauseToggle={pauseToggleHandler}
+          key={gameKey}
           char={hero.item}
           environment={environment.environment}
           getRandomObstacle={getRandomObstacle}
-          frameWidth={style.width}
-          frameHeight={style.height}
         />
       </div>
       {style.border ? <div className={classesCss.Border} /> : null}
