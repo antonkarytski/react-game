@@ -43,5 +43,5 @@ export const LOCATION_PROTOTYPE = {
   bgImage: true,
   bgMobileImage: false,
   bgMusic: false,
-  effects: false,
+  effect: false,
 };

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import useTimer from "./useTimer";
+import { useRef, useState } from "react";
+import { useInterval } from "./hook.timer";
 
 function getGenerationTime(generationTimeContainer) {
   if (Array.isArray(generationTimeContainer)) {
@@ -19,18 +19,19 @@ const useTimerGenerator = (
   const [timeToNextGen, setTimeToNextGen] = useState(
     getGenerationTime(generationTimeCont)
   );
-  useTimer(
+  const iterator = useRef(timeToNextGen);
+  useInterval(
     () => {
-      if (timeToNextGen <= 0) {
-        setTimeToNextGen(getGenerationTime(generationTimeCont));
+      if (iterator.current <= 0) {
+        const nextTimeToGen = getGenerationTime(generationTimeCont);
+        setTimeToNextGen(nextTimeToGen);
+        iterator.current = nextTimeToGen;
         fn();
       } else {
-        setTimeToNextGen(timeToNextGen - checkInterval);
+        iterator.current = iterator.current - checkInterval;
       }
     },
     checkInterval,
-    condition,
-    timeToNextGen,
     condition
   );
 };

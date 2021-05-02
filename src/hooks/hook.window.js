@@ -21,5 +21,3 @@ export function useWindowSize(fn = null) {
 
   return windowSizes;
 }
-
-export default useWindowSize;

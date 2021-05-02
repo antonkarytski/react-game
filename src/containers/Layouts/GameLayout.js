@@ -2,15 +2,16 @@ import React, { useRef, useState } from "react";
 import classes from "./styles/Layouts.module.scss";
 import Hero from "../../components/Hero/Hero";
 import Obstacle from "../../components/Obstacle/Obstacle";
-import StyledGame, { StyledLayer } from "./styles/StyledGame";
+import StyledGame from "./styles/StyledGame";
 import useTimerGenerator from "../../hooks/useTimerGenerator";
-import useTimer from "../../hooks/useTimer";
+import { useInterval } from "../../hooks/hook.timer";
 import { MAX_TIME_DECREASE, MIN_TIME_DECREASE, SPEED_FUNCTION } from "../../settings/gameControllers";
-import { GAME_PROCESS, GAME_SYSTEM } from "../../settings/gameSettings";
+import { GAME_PROCESS } from "../../settings/gameSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePause } from "../../redux/actions.game";
 import { useFrameSize } from "../../hooks/game/hook.frameSize";
 import { checkCollision } from "../../helpers/game";
+import EffectLayer from "../../components/EffectLayer/EffectLayer";
 
 export default function GameLayout(props) {
   const {
@@ -22,25 +23,31 @@ export default function GameLayout(props) {
   } = props;
 
   const { width: frameWidth, height: frameHeight } = useFrameSize();
+  const divider = frameWidth < frameHeight ? frameHeight : frameWidth;
+  let relatedWidth =
+    (frameHeight / environment.bgNaturalHeight) * environment.bgNaturalWidth;
+  if (relatedWidth < frameWidth) {
+    relatedWidth = frameWidth;
+  }
+  const bgTime = (relatedWidth / divider) * 3;
 
   const { isPause, difficulty } = useSelector(({ game }) => game);
   const dispatch = useDispatch();
 
-  const [obstaclesState, setObstaclesState] = useState({
-    obstacles: Array(GAME_SYSTEM.obstacleStackSize),
-    nextObstacle: 0,
-    count: 0,
-  });
+  const obstacles = useRef([]);
+  const [obstaclesCount, setObstaclesCount] = useState(0);
+  const [obstaclesPassCount, setObstaclesPass] = useState(0);
+
   const selfRef = useRef(null);
 
   const minTime = MIN_TIME_DECREASE(
     GAME_PROCESS.generationMinTime,
-    obstaclesState.count + difficulty < 3 ? 0 : (difficulty / 2) * 90
+    obstaclesCount + difficulty < 3 ? 0 : (difficulty / 2) * 90
   );
 
   const maxTime = MAX_TIME_DECREASE(
     GAME_PROCESS.generationMaxTime,
-    obstaclesState.count + difficulty < 3 ? 0 : (difficulty / 2) * 180
+    obstaclesCount + difficulty < 3 ? 0 : (difficulty / 2) * 180
   );
 
   function getRelPosition(objPosition) {
@@ -54,34 +61,34 @@ export default function GameLayout(props) {
   }
 
   function prepareCorrection(correction, objectSize) {
-    const preparedCorrection = {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
+    const sizesMap = {
+      top: objectSize.h,
+      bottom: objectSize.h,
+      left: objectSize.w,
+      right: objectSize.w,
     };
     if (typeof correction === "number") {
-      preparedCorrection.top = objectSize.h * correction;
-      preparedCorrection.bottom = objectSize.h * correction;
-      preparedCorrection.right = objectSize.w * correction;
-      preparedCorrection.left = objectSize.w * correction;
-    } else if (typeof correction === "object") {
-      preparedCorrection.top = objectSize.h * correction.top;
-      preparedCorrection.bottom = objectSize.h * correction.bottom;
-      preparedCorrection.right = objectSize.w * correction.right;
-      preparedCorrection.left = objectSize.w * correction.left;
+      return Object.fromEntries(
+        Object.entries(sizesMap).map(([key, size]) => {
+          return [key, size * correction];
+        })
+      );
     }
-    return preparedCorrection;
+    return Object.fromEntries(
+      Object.entries(sizesMap).map(([key, size]) => {
+        return [key, size * correction[key]];
+      })
+    );
   }
 
   useTimerGenerator(
     () => {
-      const obstaclesToAdd = [...obstaclesState.obstacles];
+      const { current: currentObstacles } = obstacles;
       const newObstacle = getRandomObstacle();
-      newObstacle.position = frameWidth;
+      newObstacle.key = obstaclesCount;
       newObstacle.speed = SPEED_FUNCTION(
         GAME_PROCESS.baseSpeed,
-        obstaclesState.count
+        obstaclesCount
       );
       newObstacle.speed =
         (newObstacle.speed * newObstacle.speedK * difficulty) / 2;
@@ -107,126 +114,71 @@ export default function GameLayout(props) {
         newObstacle.width =
           newObstacle.width +
           newObstacle.width * Math.random() * newObstacle.randomWidth;
-      obstaclesToAdd[obstaclesState.nextObstacle] = newObstacle;
-      setObstaclesState({
-        obstacles: obstaclesToAdd,
-        nextObstacle:
-          obstaclesState.nextObstacle < GAME_SYSTEM.obstacleStackSize - 1
-            ? obstaclesState.nextObstacle + 1
-            : 0,
-        count: obstaclesState.count + 1,
-      });
+      currentObstacles.push(newObstacle);
+      setObstaclesCount((count) => count + 1);
     },
     [minTime, maxTime],
     !isPause
   );
 
-  useTimer(
+  useInterval(
     () => {
-      let changesFlag = false;
-      const obstaclesToMove = obstaclesState.obstacles.map(
-        (obstacle, index) => {
-          if (obstacle?.display) {
-            const obstacleDom = selfRef.current.querySelector(
-              `[data-index = "${index}"]`
-            );
-            const heroDom = selfRef.current.querySelector("#hero");
-            const obstacleRelPosition = getRelPosition(
-              obstacleDom.getBoundingClientRect()
-            );
-            if (obstacleRelPosition.left <= -150) {
-              obstacle.display = false;
-              changesFlag = true;
-            } else {
-              const heroRelPosition = getRelPosition(
-                heroDom.getBoundingClientRect()
-              );
-              let heroSizeCorrection = null;
+      let shouldUpdate = false;
+      obstacles.current = obstacles.current.filter((obstacle) => {
+        const obstacleDom = selfRef.current.querySelector(
+          `[data-index = "${obstacle.key}"]`
+        );
 
-              if (heroRelPosition.top + 5 < char.sizes.default.h) {
-                heroSizeCorrection = prepareCorrection(char.sizeSitCorrection, {
-                  w: char.sizes.sit.w,
-                  h: char.sizes.sit.h,
-                });
-              } else {
-                heroSizeCorrection = prepareCorrection(char.sizeCorrection, {
-                  w: char.sizes.default.w,
-                  h: char.sizes.default.h,
-                });
-              }
-              const obstacleSizeCorrection = prepareCorrection(
-                obstacle.sizeCorrection,
-                { w: obstacle.width, h: obstacle.height }
-              );
-              if (
-                checkCollision(heroRelPosition, obstacleRelPosition, [
-                  heroSizeCorrection,
-                  obstacleSizeCorrection,
-                ])
-              ) {
-                dispatch(togglePause(true));
-                changesFlag = true;
-              }
-            }
-          }
-          return obstacle;
+        const obstacleRelPosition = getRelPosition(
+          obstacleDom.getBoundingClientRect()
+        );
+        if (obstacleRelPosition.left <= -150) {
+          shouldUpdate = true;
+          return false;
         }
-      );
-      if (changesFlag) {
-        setObstaclesState({
-          obstacles: obstaclesToMove,
-          nextObstacle: obstaclesState.nextObstacle,
-          count: obstaclesState.count,
-        });
-      }
+
+        const heroDom = selfRef.current.querySelector("#hero");
+        const heroRelPosition = getRelPosition(heroDom.getBoundingClientRect());
+        let heroSizeCorrection;
+        if (heroRelPosition.top + 5 < char.sizes.default.h) {
+          heroSizeCorrection = prepareCorrection(char.sizeSitCorrection, {
+            w: char.sizes.sit.w,
+            h: char.sizes.sit.h,
+          });
+        } else {
+          heroSizeCorrection = prepareCorrection(char.sizeCorrection, {
+            w: char.sizes.default.w,
+            h: char.sizes.default.h,
+          });
+        }
+        const obstacleSizeCorrection = prepareCorrection(
+          obstacle.sizeCorrection,
+          { w: obstacle.width, h: obstacle.height }
+        );
+        if (
+          checkCollision(heroRelPosition, obstacleRelPosition, [
+            heroSizeCorrection,
+            obstacleSizeCorrection,
+          ])
+        ) {
+          dispatch(togglePause(true));
+        }
+        return true;
+      });
+      if (shouldUpdate) setObstaclesPass((count) => count + 1);
     },
     40,
-    !isPause,
-    obstaclesState,
-    isPause
+    !isPause
   );
-
-  let relatedWidth =
-    (frameHeight / environment.bgNaturalHeight) * environment.bgNaturalWidth;
-  if (relatedWidth < frameWidth) {
-    relatedWidth = frameWidth;
-  }
-
-  const divider = frameWidth < frameHeight ? frameHeight : frameWidth;
-  const bgTime = (relatedWidth / divider) * 3;
-
-  const selfStyle = {
-    backgroundImage: `url(${
-      process.env.PUBLIC_URL + "/" + environment.bgImage
-    })`,
-    backgroundSize: `${relatedWidth}px ${frameHeight}px`,
-    backgroundAttachment: "initial",
-  };
-
-  const effectStyle = {};
-  if (isPause) {
-    selfStyle.animationPlayState = "paused";
-    effectStyle.animationPlayState = "paused";
-  }
-
-  let gameEffects = null;
-  switch (environment.effects) {
-    case "disco":
-      gameEffects = (
-        <StyledLayer className={classes.FilterLayout} style={effectStyle} />
-      );
-      break;
-    default:
-      gameEffects = null;
-      break;
-  }
 
   return (
     <StyledGame
       bgWidth={relatedWidth}
+      bgHeight={frameHeight}
+      bgImage={environment.bgImage}
       bgTime={bgTime}
       ref={selfRef}
-      style={selfStyle}
+      paused={isPause}
       className={classes.GameLayout}
     >
       <Hero
@@ -237,23 +189,20 @@ export default function GameLayout(props) {
         item={char}
       />
 
-      {obstaclesState.obstacles.map((obstacle, index) => {
-        if (obstacle?.display) {
-          return (
-            <Obstacle
-              frameWidth={frameWidth}
-              gameOnPause={isPause}
-              className={"obstacle"}
-              key={index}
-              index={index}
-              item={obstacle}
-            />
-          );
-        }
-        return null;
+      {obstacles.current.map(({ key, ...obstacle }) => {
+        return (
+          <Obstacle
+            frameWidth={frameWidth}
+            gameOnPause={isPause}
+            className={"obstacle"}
+            key={key}
+            index={key}
+            item={obstacle}
+          />
+        );
       })}
 
-      {gameEffects}
+      <EffectLayer environment={environment} paused={isPause} />
     </StyledGame>
   );
 }

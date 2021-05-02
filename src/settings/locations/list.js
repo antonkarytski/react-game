@@ -251,7 +251,7 @@ export const List = [
       bgNaturalMobileWidth: 2800,
       bgNaturalMobileHeight: 763,
       bgMobileImage: "bg-common.jpg",
-      effects: "disco",
+      effect: "disco",
     },
   },
   {

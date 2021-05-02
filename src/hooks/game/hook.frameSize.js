@@ -1,4 +1,4 @@
-import useWindowSize from "../useWindowSize";
+import { useWindowSize } from "../hook.window";
 import { DEFAULTS } from "../../settings/gameSettings";
 
 export function useFrameSize() {

@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components"
+import styled, { css, keyframes } from "styled-components";
 
 const bgMove = (width) => keyframes`
   0%{
@@ -7,36 +7,24 @@ const bgMove = (width) => keyframes`
   100%{
     background-position: -${width}px 0;
   }
-`
+`;
 
-const party = () => keyframes`
- 0%{
- background-color: rgba(243,61,255,0.3);
- }
- 20%{
- background-color: rgba(255,255,23,0.3);
- }
- 40%{
- background-color: rgba(38,65,255,0.3);
- }
- 60%{
- background-color: rgba(255,49,17,0.3);
- }
- 80%{
- background-color: rgba(255,255,255,0.3);
- }
- 100%{
- background-color: rgba(47, 255, 75, 0.3);
- }
-`
-export const StyledLayer = styled.div`
-animation: ${party} 10s steps(6) infinite;
-`
+const bgImageUrl = (bgImage) => css`
+  url(${process.env.PUBLIC_URL}/${bgImage})
+`;
+
+const bgSize = (width, height) => css`
+  ${width}px ${height}px
+`;
+
+const playState = (paused) => css`
+  ${paused ? "paused" : "running"}
+`;
 
 export default styled.div`
-
-  position: absolute;
-  animation: ${props => bgMove(props.bgWidth)} ${props => props.bgTime}s linear infinite;
- 
-`
-
+  animation: ${({ bgWidth }) => bgMove(bgWidth)} ${({ bgTime }) => bgTime}s
+    linear infinite;
+  background-image: ${({ bgImage }) => bgImageUrl(bgImage)};
+  background-size: ${({ bgWidth, bgHeight }) => bgSize(bgWidth, bgHeight)};
+  animation-play-state: ${({ paused }) => playState(paused)};
+`;

@@ -65,7 +65,7 @@ export default function Frame() {
     if (environment.environment.bgMusic) {
       reloadSound();
     }
-  }, [location, environment.environment.bgMusic, reloadSound]);
+  }, [environment.environment.bgMusic, reloadSound]);
 
   useEffect(() => {
     if (environment.environment.bgMusic && bgMusic.paused) bgMusic.play();
