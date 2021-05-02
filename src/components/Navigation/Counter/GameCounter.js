@@ -2,7 +2,7 @@ import { getSavedNumberVal } from "../../../helpers/localStorage";
 import Counter from "./Counter";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { useSaveBestScore, useScoreHistory } from "../../../hooks/game/hook.scoreHistory";
+import { useSaveBestScore, useScoreHistory } from "../../../hooks/hook.scoreHistory";
 
 export default function GameCounter() {
   const { isPause, isLose, gameKey } = useSelector(({ game }) => game);

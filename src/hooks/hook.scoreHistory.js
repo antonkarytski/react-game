@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { STORAGE_BEST_SCORE, STORAGE_SCORE_HISTORY } from "../../settings/consts";
-import { useSaveToLocalStorage } from "../hook.localStorage";
-import { useBestValue, useValuesHistory } from "../hook.valuesHistory";
+import { STORAGE_BEST_SCORE, STORAGE_SCORE_HISTORY } from "../settings/consts";
+import { useSaveToLocalStorage } from "./hook.localStorage";
+import { useBestValue, useValuesHistory } from "./hook.valuesHistory";
 
 const savedHistory = localStorage.getItem(STORAGE_SCORE_HISTORY);
 const initialHistory = savedHistory ? JSON.parse(savedHistory) : [];

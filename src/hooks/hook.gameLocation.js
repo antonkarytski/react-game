@@ -1,9 +1,9 @@
 import { useParams } from "react-router";
-import { findLocationIndex } from "../../helpers/game";
+import { findLocationIndex } from "../helpers/game";
 import { useEffect, useState } from "react";
-import { DEFAULTS } from "../../settings/gameSettings";
-import { STORAGE_LOCATION } from "../../settings/consts";
-import { useSaveToLocalStorage } from "../hook.localStorage";
+import { DEFAULTS } from "../settings/gameSettings";
+import { STORAGE_LOCATION } from "../settings/consts";
+import { useSaveToLocalStorage } from "./hook.localStorage";
 
 function parseLocation() {
   const savedLocation =

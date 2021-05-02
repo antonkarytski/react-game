@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { getSavedNumberVal } from "../../helpers/localStorage";
-import { STORAGE_DIFFICULTY } from "../../settings/consts";
-import { useSaveToLocalStorage } from "../hook.localStorage";
+import { getSavedNumberVal } from "../helpers/localStorage";
+import { STORAGE_DIFFICULTY } from "../settings/consts";
+import { useSaveToLocalStorage } from "./hook.localStorage";
 
 const savedGameDifficult = getSavedNumberVal(STORAGE_DIFFICULTY, 2);
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useGameLocation } from "./hook.gameLocation";
-import { getObstacle } from "../../helpers/game";
-import { DEFAULTS } from "../../settings/gameSettings";
-import LOCATIONS from "../../settings/locations";
+import { getObstacle } from "../helpers/game";
+import { DEFAULTS } from "../settings/gameSettings";
+import LOCATIONS from "../settings/locations";
 import { useHero } from "./hook.hero";
 
 export function useGameEnvironment() {

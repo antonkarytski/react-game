@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useSaveToLocalStorage } from "../hook.localStorage";
-import { getSavedNumberVal } from "../../helpers/localStorage";
-import { STORAGE_MUTED, STORAGE_VOLUME } from "../../settings/consts";
-import { DEFAULTS } from "../../settings/gameSettings";
+import { useSaveToLocalStorage } from "./hook.localStorage";
+import { getSavedNumberVal } from "../helpers/localStorage";
+import { STORAGE_MUTED, STORAGE_VOLUME } from "../settings/consts";
+import { DEFAULTS } from "../settings/gameSettings";
 
 const savedSound = {
   volume: getSavedNumberVal(STORAGE_VOLUME, DEFAULTS.sound.volume),

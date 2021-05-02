@@ -4,14 +4,14 @@ import Hero from "../../components/Hero/Hero";
 import Obstacle from "../../components/Obstacle/Obstacle";
 import StyledGame from "./styles/StyledGame";
 import useTimerGenerator from "../../hooks/useTimerGenerator";
-import { useInterval } from "../../hooks/hook.timer";
 import { MAX_TIME_DECREASE, MIN_TIME_DECREASE, SPEED_FUNCTION } from "../../settings/gameControllers";
 import { GAME_PROCESS } from "../../settings/gameSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePause } from "../../redux/actions.game";
-import { useFrameSize } from "../../hooks/game/hook.frameSize";
+import { useFrameSize } from "../../hooks/hook.frameSize";
 import EffectLayer from "../../components/EffectLayer/EffectLayer";
-import { Position } from "../../helpers/position";
+import { useIntersection } from "../../hooks/hook.intersection";
+import { useObstaclesCleaning } from "../../hooks/hook.obstacles";
 
 export default function GameLayout(props) {
   const {
@@ -34,11 +34,9 @@ export default function GameLayout(props) {
   const { isPause, difficulty } = useSelector(({ game }) => game);
   const dispatch = useDispatch();
 
-  const selfRef = useRef(null);
   const heroRef = useRef(null);
   const obstacles = useRef([]);
   const [obstaclesCount, setObstaclesCount] = useState(0);
-  const [obstaclesPassCount, setObstaclesPass] = useState(0);
 
   const minTime = MIN_TIME_DECREASE(
     GAME_PROCESS.generationMinTime,
@@ -91,41 +89,20 @@ export default function GameLayout(props) {
     !isPause
   );
 
-  useInterval(
-    () => {
-      const previousLength = obstacles.current.length;
-      obstacles.current = obstacles.current.filter((obstacle) => {
-        const obstacleDom = obstacle.domElement.current;
-        if (obstacleDom.offsetLeft <= -150) return false;
-
-        const heroDom = heroRef.current;
-        const heroMode = (() => {
-          if (heroDom?.offsetHeight < char.sizes.default.h) return "sit";
-          return "default";
-        })();
-
-        const heroPosition = new Position(
-          heroDom?.getBoundingClientRect(),
-          char.sizeCorrection[heroMode]
-        );
-
-        const obstaclePosition = new Position(
-          obstacleDom.getBoundingClientRect(),
-          obstacle.sizeCorrection
-        );
-
-        if (Position.isIntersect(heroPosition, obstaclePosition)) {
-          dispatch(togglePause(true));
-        }
-        return true;
-      });
-      if (previousLength !== obstacles.current.length) {
-        setObstaclesPass((count) => count + 1);
-      }
+  useIntersection(
+    {
+      domElement: heroRef,
+      sizeCorrection:
+        heroRef.current?.offsetHeight < char.sizes.default.h
+          ? char.sizeCorrection["sit"]
+          : char.sizeCorrection["default"],
     },
-    40,
+    obstacles.current,
+    () => dispatch(togglePause(true)),
     !isPause
   );
+
+  useObstaclesCleaning(obstacles, -90, !isPause);
 
   return (
     <StyledGame
@@ -133,7 +110,6 @@ export default function GameLayout(props) {
       bgHeight={frameHeight}
       bgImage={environment.bgImage}
       bgTime={bgTime}
-      ref={selfRef}
       paused={isPause}
       className={classes.GameLayout}
     >
@@ -151,9 +127,7 @@ export default function GameLayout(props) {
           <Obstacle
             frameWidth={frameWidth}
             gameOnPause={isPause}
-            className={"obstacle"}
             key={key}
-            index={key}
             item={obstacle}
           />
         );

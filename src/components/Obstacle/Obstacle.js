@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import StyledObstacle from "./styles/StyledObstacle";
 
-const Obstacle = ({ item, index, className, gameOnPause, frameWidth }) => {
+const Obstacle = ({ item, gameOnPause, frameWidth }) => {
   const { speed, width, height, altitude, sprite, effect } = item;
 
   const compStyle = {
@@ -32,8 +32,6 @@ const Obstacle = ({ item, index, className, gameOnPause, frameWidth }) => {
       style={style}
       frameWidth={frameWidth}
       selfSpeed={speed}
-      className={className}
-      data-index={index}
     />
   );
 };
