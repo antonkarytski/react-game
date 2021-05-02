@@ -1,5 +1,5 @@
 import React from "react";
-import classesCss from "../styles/Layouts.module.scss";
+import classesCss from "./MenuLayout.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 

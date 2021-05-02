@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Audio from "../components/Helpres/Audio";
 import GameLayout from "./Layouts/GameLayout";
-import NavigationLayout from "./Layouts/NavigationLayout";
+import NavigationLayout from "./Layouts/NavigationLayout/NavigationLayout";
 import MenuLayout from "./Layouts/MenuLayout/MenuLayout";
 import classesCss from "./Frame.module.scss";
 import { useUnshiftKeyPress } from "../hooks/hook.keyPress";
@@ -9,7 +9,6 @@ import { getSavedNumberVal } from "../helpers/localStorage";
 import { useGameAudio } from "../hooks/game/hook.sounds";
 import { useGameEnvironment } from "../hooks/game/hook.environment";
 import { useFrameSizeStyle } from "../hooks/game/hook.frameSize";
-import { LOCATIONS_MENU_SET } from "../settings/locations";
 import { useDispatch, useSelector } from "react-redux";
 import { resetGame, togglePause, updateGameKey } from "../redux/actions.game";
 import { useSaveToLocalStorage } from "../hooks/hook.localStorage";
@@ -93,7 +92,6 @@ export default function Frame() {
         {isPause ? (
           <MenuLayout
             locationData={{
-              itemSet: LOCATIONS_MENU_SET,
               currentIndex: location,
               selectHandler: locationSelectHandler,
             }}

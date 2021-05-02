@@ -1,5 +1,5 @@
 import { togglePause } from "../../../redux/actions.game";
-import classes from "../../../containers/Layouts/styles/Layouts.module.scss";
+import classes from "../../../containers/Layouts/NavigationLayout/NavigationLayout.module.scss";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import Button from "./Button";
 import React from "react";

@@ -39,3 +39,7 @@ export const GAME_PROCESS = {
   generationMaxTime: 2150,
   baseSpeed: 200,
 };
+
+export const GAME_SYSTEM = {
+  obstacleStackSize: 8,
+};

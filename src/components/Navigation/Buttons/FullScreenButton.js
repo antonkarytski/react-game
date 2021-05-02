@@ -1,5 +1,5 @@
 import cx from "classnames";
-import classes from "../../../containers/Layouts/styles/Layouts.module.scss";
+import classes from "../../../containers/Layouts/NavigationLayout/NavigationLayout.module.scss";
 import { faCompressArrowsAlt, faExpandArrowsAlt } from "@fortawesome/free-solid-svg-icons";
 import Button from "./Button";
 import React from "react";

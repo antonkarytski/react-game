@@ -1,6 +1,6 @@
 import { toggleInfoMenu } from "../../../redux/actions.game";
 import cx from "classnames";
-import classes from "../../../containers/Layouts/styles/Layouts.module.scss";
+import classes from "../../../containers/Layouts/NavigationLayout/NavigationLayout.module.scss";
 import { faQuestion, faTimes } from "@fortawesome/free-solid-svg-icons";
 import Button from "./Button";
 import React from "react";

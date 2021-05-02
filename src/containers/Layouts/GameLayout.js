@@ -6,10 +6,11 @@ import StyledGame, { StyledLayer } from "./styles/StyledGame";
 import useTimerGenerator from "../../hooks/useTimerGenerator";
 import useTimer from "../../hooks/useTimer";
 import { MAX_TIME_DECREASE, MIN_TIME_DECREASE, SPEED_FUNCTION } from "../../settings/gameControllers";
-import { GAME_PROCESS } from "../../settings/gameSettings";
+import { GAME_PROCESS, GAME_SYSTEM } from "../../settings/gameSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePause } from "../../redux/actions.game";
 import { useFrameSize } from "../../hooks/game/hook.frameSize";
+import { checkCollision } from "../../helpers/game";
 
 export default function GameLayout(props) {
   const {
@@ -25,9 +26,8 @@ export default function GameLayout(props) {
   const { isPause, difficulty } = useSelector(({ game }) => game);
   const dispatch = useDispatch();
 
-  const stackSize = 8;
   const [obstaclesState, setObstaclesState] = useState({
-    obstacles: Array(stackSize),
+    obstacles: Array(GAME_SYSTEM.obstacleStackSize),
     nextObstacle: 0,
     count: 0,
   });
@@ -74,22 +74,6 @@ export default function GameLayout(props) {
     return preparedCorrection;
   }
 
-  function checkCollision(obj1, obj2, correction = {}) {
-    //THIS FUNCTION WILL WORK ONLY WITH RELATED VALUES
-
-    const rightCross =
-      obj1.right - correction[0].right > obj2.left + correction[1].left;
-    const leftCross =
-      obj1.left + correction[0].left < obj2.right - correction[1].right;
-    const topCross =
-      obj1.top - correction[0].top > obj2.bottom + correction[1].bottom;
-    const bottomCross =
-      obj1.bottom + correction[0].bottom < obj2.top - correction[1].top;
-    return rightCross & leftCross & topCross & bottomCross;
-  }
-
-  //OBSTACLES GENERATION
-
   useTimerGenerator(
     () => {
       const obstaclesToAdd = [...obstaclesState.obstacles];
@@ -127,7 +111,7 @@ export default function GameLayout(props) {
       setObstaclesState({
         obstacles: obstaclesToAdd,
         nextObstacle:
-          obstaclesState.nextObstacle < stackSize - 1
+          obstaclesState.nextObstacle < GAME_SYSTEM.obstacleStackSize - 1
             ? obstaclesState.nextObstacle + 1
             : 0,
         count: obstaclesState.count + 1,
@@ -136,8 +120,6 @@ export default function GameLayout(props) {
     [minTime, maxTime],
     !isPause
   );
-
-  //OBSTACLES LIFECYCLE
 
   useTimer(
     () => {
@@ -203,8 +185,6 @@ export default function GameLayout(props) {
     obstaclesState,
     isPause
   );
-
-  //RENDERS PREPARE
 
   let relatedWidth =
     (frameHeight / environment.bgNaturalHeight) * environment.bgNaturalWidth;
