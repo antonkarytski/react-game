@@ -10,8 +10,8 @@ import { GAME_PROCESS } from "../../settings/gameSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePause } from "../../redux/actions.game";
 import { useFrameSize } from "../../hooks/game/hook.frameSize";
-import { checkCollision } from "../../helpers/game";
 import EffectLayer from "../../components/EffectLayer/EffectLayer";
+import { Position } from "../../helpers/position";
 
 export default function GameLayout(props) {
   const {
@@ -34,11 +34,11 @@ export default function GameLayout(props) {
   const { isPause, difficulty } = useSelector(({ game }) => game);
   const dispatch = useDispatch();
 
+  const selfRef = useRef(null);
+  const heroRef = useRef(null);
   const obstacles = useRef([]);
   const [obstaclesCount, setObstaclesCount] = useState(0);
   const [obstaclesPassCount, setObstaclesPass] = useState(0);
-
-  const selfRef = useRef(null);
 
   const minTime = MIN_TIME_DECREASE(
     GAME_PROCESS.generationMinTime,
@@ -50,41 +50,11 @@ export default function GameLayout(props) {
     obstaclesCount + difficulty < 3 ? 0 : (difficulty / 2) * 180
   );
 
-  function getRelPosition(objPosition) {
-    const windowDomRect = selfRef.current.getBoundingClientRect();
-    return {
-      left: objPosition.left - windowDomRect.left,
-      right: objPosition.right - windowDomRect.left,
-      top: windowDomRect.bottom - objPosition.top,
-      bottom: windowDomRect.bottom - objPosition.bottom,
-    };
-  }
-
-  function prepareCorrection(correction, objectSize) {
-    const sizesMap = {
-      top: objectSize.h,
-      bottom: objectSize.h,
-      left: objectSize.w,
-      right: objectSize.w,
-    };
-    if (typeof correction === "number") {
-      return Object.fromEntries(
-        Object.entries(sizesMap).map(([key, size]) => {
-          return [key, size * correction];
-        })
-      );
-    }
-    return Object.fromEntries(
-      Object.entries(sizesMap).map(([key, size]) => {
-        return [key, size * correction[key]];
-      })
-    );
-  }
-
   useTimerGenerator(
     () => {
       const { current: currentObstacles } = obstacles;
       const newObstacle = getRandomObstacle();
+      newObstacle.domElement = { current: null };
       newObstacle.key = obstaclesCount;
       newObstacle.speed = SPEED_FUNCTION(
         GAME_PROCESS.baseSpeed,
@@ -123,49 +93,35 @@ export default function GameLayout(props) {
 
   useInterval(
     () => {
-      let shouldUpdate = false;
+      const previousLength = obstacles.current.length;
       obstacles.current = obstacles.current.filter((obstacle) => {
-        const obstacleDom = selfRef.current.querySelector(
-          `[data-index = "${obstacle.key}"]`
+        const obstacleDom = obstacle.domElement.current;
+        if (obstacleDom.offsetLeft <= -150) return false;
+
+        const heroDom = heroRef.current;
+        const heroMode = (() => {
+          if (heroDom?.offsetHeight < char.sizes.default.h) return "sit";
+          return "default";
+        })();
+
+        const heroPosition = new Position(
+          heroDom?.getBoundingClientRect(),
+          char.sizeCorrection[heroMode]
         );
 
-        const obstacleRelPosition = getRelPosition(
-          obstacleDom.getBoundingClientRect()
+        const obstaclePosition = new Position(
+          obstacleDom.getBoundingClientRect(),
+          obstacle.sizeCorrection
         );
-        if (obstacleRelPosition.left <= -150) {
-          shouldUpdate = true;
-          return false;
-        }
 
-        const heroDom = selfRef.current.querySelector("#hero");
-        const heroRelPosition = getRelPosition(heroDom.getBoundingClientRect());
-        let heroSizeCorrection;
-        if (heroRelPosition.top + 5 < char.sizes.default.h) {
-          heroSizeCorrection = prepareCorrection(char.sizeSitCorrection, {
-            w: char.sizes.sit.w,
-            h: char.sizes.sit.h,
-          });
-        } else {
-          heroSizeCorrection = prepareCorrection(char.sizeCorrection, {
-            w: char.sizes.default.w,
-            h: char.sizes.default.h,
-          });
-        }
-        const obstacleSizeCorrection = prepareCorrection(
-          obstacle.sizeCorrection,
-          { w: obstacle.width, h: obstacle.height }
-        );
-        if (
-          checkCollision(heroRelPosition, obstacleRelPosition, [
-            heroSizeCorrection,
-            obstacleSizeCorrection,
-          ])
-        ) {
+        if (Position.isIntersect(heroPosition, obstaclePosition)) {
           dispatch(togglePause(true));
         }
         return true;
       });
-      if (shouldUpdate) setObstaclesPass((count) => count + 1);
+      if (previousLength !== obstacles.current.length) {
+        setObstaclesPass((count) => count + 1);
+      }
     },
     40,
     !isPause
@@ -187,6 +143,7 @@ export default function GameLayout(props) {
         soundMuted={soundMuted}
         gameOnPause={isPause}
         item={char}
+        ref={heroRef}
       />
 
       {obstacles.current.map(({ key, ...obstacle }) => {

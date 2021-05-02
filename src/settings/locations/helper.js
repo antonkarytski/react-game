@@ -1,6 +1,15 @@
 import { HERO, OBSTACLES, PATHS } from "../gameSettings";
 import { HERO_PROTOTYPE, LOCATION_PROTOTYPE, OBSTACLE_PROTOTYPE } from "../gamePrototypes";
 
+function prepareCorrection(sizes, correction) {
+  return {
+    top: sizes.h * correction.top,
+    bottom: sizes.h * correction.bottom,
+    right: sizes.w * correction.right,
+    left: sizes.w * correction.left,
+  };
+}
+
 export function prepareHeroSet(pathToLocationAssets, unpreparedHeroSet) {
   const pathToCharsFolder = `${pathToLocationAssets}/${HERO.folder}/`;
 
@@ -10,6 +19,16 @@ export function prepareHeroSet(pathToLocationAssets, unpreparedHeroSet) {
       ...HERO_PROTOTYPE,
       ...hero,
       sprite: `${pathToHeroFolder}/${hero.sprite || HERO.sprite}`,
+      sizeCorrection: {
+        default: prepareCorrection(hero.sizes.default, {
+          ...HERO_PROTOTYPE.sizeCorrection.default,
+          ...hero.sizeCorrection?.default,
+        }),
+        sit: prepareCorrection(hero.sizes.sit, {
+          ...HERO_PROTOTYPE.sizeCorrection.sit,
+          ...hero.sizeCorrection?.sit,
+        }),
+      },
     };
 
     for (let attr in HERO.props) {
@@ -34,6 +53,13 @@ export function prepareObstacleSet(
     const preparedObstacle = {
       ...OBSTACLE_PROTOTYPE,
       ...obstacle,
+      sizeCorrection: prepareCorrection(
+        { w: obstacle.width, h: obstacle.height },
+        {
+          ...OBSTACLE_PROTOTYPE.sizeCorrection,
+          ...obstacle.sizeCorrection,
+        }
+      ),
     };
     if (preparedObstacle.sprite) {
       const obstacleSpriteFile =

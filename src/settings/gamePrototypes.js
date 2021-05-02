@@ -1,3 +1,10 @@
+const defaultSizeCorrection = {
+  top: 0,
+  right: 0,
+  left: 0,
+  bottom: 0,
+};
+
 export const HERO_PROTOTYPE = {
   sizes: {
     default: {
@@ -8,6 +15,10 @@ export const HERO_PROTOTYPE = {
       w: 50,
       h: 30,
     },
+  },
+  sizesCorrection: {
+    default: defaultSizeCorrection,
+    sit: defaultSizeCorrection,
   },
   preview: true,
   soundHello: false,
@@ -31,7 +42,7 @@ export const OBSTACLE_PROTOTYPE = {
   display: true,
   position: 0,
   customBgSize: false,
-  sizeCorrection: 0,
+  sizeCorrection: defaultSizeCorrection,
   randomWidth: 0,
   randomHeight: 0,
   effect: false,

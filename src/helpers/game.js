@@ -17,15 +17,3 @@ export function getObstacle({ altitude, ...obstacle }) {
       : altitude,
   };
 }
-
-export function checkCollision(obj1, obj2, correction = {}) {
-  const rightCross =
-    obj1.right - correction[0].right > obj2.left + correction[1].left;
-  const leftCross =
-    obj1.left + correction[0].left < obj2.right - correction[1].right;
-  const topCross =
-    obj1.top - correction[0].top > obj2.bottom + correction[1].bottom;
-  const bottomCross =
-    obj1.bottom + correction[0].bottom < obj2.top - correction[1].top;
-  return rightCross && leftCross && topCross && bottomCross;
-}
