@@ -4,7 +4,7 @@ import Hero from "../../components/Hero/Hero";
 import Obstacle from "../../components/Obstacle/Obstacle";
 import StyledGame from "./styles/StyledGame";
 import useTimerGenerator from "../../hooks/useTimerGenerator";
-import { MAX_TIME_DECREASE, MIN_TIME_DECREASE, SPEED_FUNCTION } from "../../settings/gameControllers";
+import { MAX_TIME_DECREASE, MIN_TIME_DECREASE } from "../../settings/gameControllers";
 import { GAME_PROCESS } from "../../settings/gameSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePause } from "../../redux/actions.game";
@@ -12,14 +12,14 @@ import { useFrameSize } from "../../hooks/hook.frameSize";
 import EffectLayer from "../../components/EffectLayer/EffectLayer";
 import { useIntersection } from "../../hooks/hook.intersection";
 import { useObstaclesCleaning } from "../../hooks/hook.obstacles";
+import { getRandomObstacle } from "../../helpers/obstacle";
 
 export default function GameLayout(props) {
   const {
     char,
-    environment,
+    locationData: { environment, ...locationData },
     soundVolume,
     soundMuted,
-    getRandomObstacle,
   } = props;
 
   const { width: frameWidth, height: frameHeight } = useFrameSize();
@@ -51,37 +51,10 @@ export default function GameLayout(props) {
   useTimerGenerator(
     () => {
       const { current: currentObstacles } = obstacles;
-      const newObstacle = getRandomObstacle();
-      newObstacle.domElement = { current: null };
-      newObstacle.key = obstaclesCount;
-      newObstacle.speed = SPEED_FUNCTION(
-        GAME_PROCESS.baseSpeed,
-        obstaclesCount
-      );
-      newObstacle.speed =
-        (newObstacle.speed * newObstacle.speedK * difficulty) / 2;
-      if (newObstacle.effect?.name === "rotate") {
-        newObstacle.effect = Object.assign({}, newObstacle.effect);
-        if (newObstacle.effect.speed) {
-          const rotateSpeed = newObstacle.effect.speed;
-          if (Array.isArray(rotateSpeed))
-            newObstacle.effect.speed =
-              rotateSpeed[0] +
-              Math.random() * (rotateSpeed[1] - rotateSpeed[0]);
-          else newObstacle.effect.speed = rotateSpeed;
-        } else newObstacle.effect.speed = false;
-        if (newObstacle.effect.direction === "rand") {
-          newObstacle.effect.direction = Math.random() < 0.5 ? 1 : -1;
-        }
-      }
-      if (newObstacle.randomHeight)
-        newObstacle.height =
-          newObstacle.height -
-          newObstacle.height * Math.random() * newObstacle.randomHeight;
-      if (newObstacle.randomWidth)
-        newObstacle.width =
-          newObstacle.width +
-          newObstacle.width * Math.random() * newObstacle.randomWidth;
+      const newObstacle = getRandomObstacle(locationData, {
+        countModifier: obstaclesCount,
+        difficultyModifier: difficulty,
+      });
       currentObstacles.push(newObstacle);
       setObstaclesCount((count) => count + 1);
     },
@@ -127,7 +100,7 @@ export default function GameLayout(props) {
           <Obstacle
             frameWidth={frameWidth}
             gameOnPause={isPause}
-            key={key}
+            key={`obstacle${key}`}
             item={obstacle}
           />
         );

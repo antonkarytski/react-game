@@ -35,7 +35,6 @@ export default function Frame() {
     hero,
     setHero,
     environment,
-    getRandomObstacle,
   } = useGameEnvironment();
 
   const locationSelectHandler = (index) => {
@@ -117,8 +116,7 @@ export default function Frame() {
           soundMuted={soundState.muted}
           key={gameKey}
           char={hero.item}
-          environment={environment.environment}
-          getRandomObstacle={getRandomObstacle}
+          locationData={environment}
         />
       </div>
       {style.border ? <div className={classesCss.Border} /> : null}

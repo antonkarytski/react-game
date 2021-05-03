@@ -12,3 +12,12 @@ export const MENU_MODE = {
   LOCATION_SELECT: "locationSelect",
   STATISTIC: "statistic",
 };
+
+export const OBSTACLE_EFFECTS = {
+  ROTATE: "rotate",
+  ALTITUDE: "altitude",
+};
+
+export const OBSTACLE_EFFECTS_MODIFIERS = {
+  RAND: "rand",
+};

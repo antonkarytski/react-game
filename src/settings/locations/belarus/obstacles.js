@@ -1,3 +1,5 @@
+import { OBSTACLE_EFFECTS } from "../../consts";
+
 export const commonOmon = {
   type: "commonOmon",
   label: "Обычный омоновец",
@@ -69,7 +71,7 @@ export const waterBalloon = {
   height: 98.5,
   altitude: [25, 175],
   effect: {
-    name: "altitude",
+    name: OBSTACLE_EFFECTS.ALTITUDE,
     altitude: [50, -25],
   },
   sizeCorrection: {

@@ -1,3 +1,5 @@
+import { OBSTACLE_EFFECTS, OBSTACLE_EFFECTS_MODIFIERS } from "../../consts";
+
 export const toiletBrush = {
   type: "toiletBrush",
   label: "Ершик",
@@ -5,7 +7,7 @@ export const toiletBrush = {
   width: 57,
   height: 21,
   altitude: [25, 175],
-  effect: { name: "rotate" },
+  effect: { name: OBSTACLE_EFFECTS.ROTATE },
   speedK: 1.25,
 };
 
@@ -24,8 +26,8 @@ export const putin = {
     right: 0.25,
     bottom: 0,
   },
-  randomWidth: 1.8,
-  randomHeight: 0.3,
+  randomWidth: [-0.1, 2.5],
+  randomHeight: [-0.6, 0.1],
 };
 
 export const putin2 = {
@@ -43,8 +45,8 @@ export const putin2 = {
     bottom: 0.2,
   },
   effect: {
-    name: "rotate",
+    name: OBSTACLE_EFFECTS.ROTATE,
     speed: [0.1, 7],
-    direction: "rand",
+    direction: OBSTACLE_EFFECTS_MODIFIERS.RAND,
   },
 };
